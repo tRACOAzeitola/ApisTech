@@ -140,6 +140,4 @@ Para contribuir com este projeto:
 3. Certifique-se de que o código segue os padrões estabelecidos
 4. Envie um pull request
 
-## 📄 Licença
-
-Este projeto é propriedade privada e não está licenciado para uso externo sem autorização expressa.
+ 
