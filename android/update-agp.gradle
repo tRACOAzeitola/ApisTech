@@ -1,0 +1,19 @@
+// Script para atualizar a versão do AGP (Android Gradle Plugin) para 8.8.2
+buildscript {
+    ext {
+        AGP_VERSION = "8.8.2"
+    }
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle:${AGP_VERSION}")
+    }
+}
+
+task updateAgpVersion {
+    doLast {
+        println "Atualizado para usar Android Gradle Plugin versão ${AGP_VERSION}"
+    }
+}
