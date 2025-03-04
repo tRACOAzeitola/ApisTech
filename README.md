@@ -1,97 +1,145 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Inventario
 
-# Getting Started
+[![React Native](https://img.shields.io/badge/React%20Native-0.78.0-blue.svg)](https://reactnative.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0.4-blue.svg)](https://www.typescriptlang.org/)
+[![License](https://img.shields.io/badge/License-Private-red.svg)]()
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+Um aplicativo móvel de gerenciamento de inventário desenvolvido com React Native, que permite rastrear, gerenciar e organizar itens de estoque de forma eficiente.
 
-## Step 1: Start Metro
+## 📱 Funcionalidades
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+- Cadastro e gerenciamento de produtos
+- Categorização de itens
+- Rastreamento de estoque
+- Interface intuitiva e responsiva
+- Navegação fluida entre telas
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+## 🚀 Tecnologias
 
-```sh
-# Using npm
+Este projeto utiliza as seguintes tecnologias:
+
+- [React Native](https://reactnative.dev/) - Framework para desenvolvimento móvel
+- [TypeScript](https://www.typescriptlang.org/) - Linguagem de programação
+- [React Navigation](https://reactnavigation.org/) - Navegação entre telas
+- [React Native Reanimated](https://docs.swmansion.com/react-native-reanimated/) - Animações fluidas
+- [React Native Vector Icons](https://github.com/oblador/react-native-vector-icons) - Pacote de ícones
+
+## 🛠️ Requisitos
+
+- Node.js 18 ou superior
+- React Native CLI
+- Xcode (para iOS)
+- Android Studio (para Android)
+- CocoaPods (para iOS)
+
+## ⚙️ Como Executar
+
+### Preparando o ambiente
+
+Certifique-se de ter configurado seu ambiente seguindo o [Guia de Configuração do React Native](https://reactnative.dev/docs/environment-setup).
+
+### Instalando dependências
+
+```bash
+# Instalar dependências do Node.js
+npm install
+
+# Para iOS, instalar dependências do CocoaPods
+cd ios && pod install && cd ..
+```
+
+### Executando o projeto
+
+```bash
+# Iniciar o Metro Bundler
 npm start
 
-# OR using Yarn
-yarn start
-```
-
-## Step 2: Build and run your app
-
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
-
-### Android
-
-```sh
-# Using npm
+# Executar no Android
 npm run android
 
-# OR using Yarn
-yarn android
-```
-
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
-bundle exec pod install
-```
-
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
-
-```sh
-# Using npm
+# Executar no iOS
 npm run ios
-
-# OR using Yarn
-yarn ios
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+## 📂 Estrutura do Projeto
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+```
+src/
+├── assets/                # Recursos estáticos (imagens, ícones, fontes)
+│   ├── images/           # Imagens utilizadas na aplicação
+│   ├── icons/            # Ícones personalizados
+│   └── fonts/            # Fontes customizadas
+├── components/           # Componentes reutilizáveis
+│   ├── ui/               # Componentes de UI básicos
+│   ├── layout/           # Componentes de layout
+│   └── forms/            # Componentes relacionados a formulários
+├── config/               # Configurações da aplicação
+├── constants/            # Constantes e valores fixos
+├── context/              # Contextos do React para estado global
+├── data/                 # Dados mockados ou lógica de dados
+├── hooks/                # Custom hooks reutilizáveis
+├── navigation/           # Configuração de navegação e rotas
+├── screens/              # Componentes de tela/página
+├── services/             # Serviços para interação com APIs
+├── styles/               # Estilos globais e temas
+├── types/                # Definições de tipos TypeScript
+└── utils/                # Funções utilitárias
+```
 
-## Step 3: Modify your app
+## 📋 Convenções de Código
 
-Now that you have successfully run the app, let's make changes!
+### Nomenclatura
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+- **Componentes**: PascalCase (ex: `CategoryCard.tsx`)
+- **Hooks**: camelCase com prefixo "use" (ex: `useProductData.ts`)
+- **Utilitários**: camelCase (ex: `dateFormatter.ts`)
+- **Constantes**: UPPER_SNAKE_CASE para constantes, camelCase para objetos
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+### Estrutura de Componentes
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+```
+Button/
+├── index.tsx          # Componente principal para facilitar importação
+├── Button.tsx         # Implementação do componente
+├── Button.styles.ts   # Estilos do componente
+└── Button.types.ts    # Tipos específicos do componente
+```
 
-## Congratulations! :tada:
+### Padrões de Importação
 
-You've successfully run and modified your React Native App. :partying_face:
+Organização recomendada:
+1. Bibliotecas externas
+2. Componentes e hooks internos
+3. Utilitários, constantes e tipos
+4. Estilos
 
-### Now what?
+```typescript
+// 1. Bibliotecas externas
+import React, { useState } from 'react';
+import { View, Text } from 'react-native';
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+// 2. Componentes e hooks internos
+import { Button } from '../components/ui';
+import { useProducts } from '../hooks';
 
-# Troubleshooting
+// 3. Utilitários, constantes e tipos
+import { formatDate } from '../utils';
+import { COLORS } from '../constants';
+import type { Product } from '../types';
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+// 4. Estilos
+import styles from './styles';
+```
 
-# Learn More
+## 🤝 Contribuição
 
-To learn more about React Native, take a look at the following resources:
+Para contribuir com este projeto:
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+1. Crie uma branch a partir da `main`
+2. Implemente suas alterações
+3. Certifique-se de que o código segue os padrões estabelecidos
+4. Envie um pull request
+
+## 📄 Licença
+
+Este projeto é propriedade privada e não está licenciado para uso externo sem autorização expressa.
