@@ -1,143 +1,175 @@
-# Inventario
+# Inventario - Aplicação de Gestão de Inventário para Apicultores
 
-[![React Native](https://img.shields.io/badge/React%20Native-0.78.0-blue.svg)](https://reactnative.dev/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0.4-blue.svg)](https://www.typescriptlang.org/)
-[![License](https://img.shields.io/badge/License-Private-red.svg)]()
+Uma aplicação móvel moderna desenvolvida com React Native para ajudar apicultores a gerir o seu inventário de forma eficiente.
 
-Um aplicativo móvel de gerenciamento de inventário desenvolvido com React Native, que permite rastrear, gerenciar e organizar itens de estoque de forma eficiente.
+![Inventario App](https://via.placeholder.com/800x400.png?text=Inventario+App)
 
-## 📱 Funcionalidades
+## 📱 Sobre o Projeto
 
-- Cadastro e gerenciamento de produtos
-- Categorização de itens
-- Rastreamento de estoque
-- Interface intuitiva e responsiva
-- Navegação fluida entre telas
+Inventario é uma aplicação de gestão de inventário específica para apicultores, permitindo o controlo completo de produtos, equipamentos e materiais relacionados com a apicultura. Com uma interface intuitiva e funcionalidades avançadas, a aplicação ajuda a otimizar a gestão de stocks, rastrear movimentações e alertar sobre níveis baixos de produtos essenciais.
 
-## 🚀 Tecnologias
+### Principais Funcionalidades
 
-Este projeto utiliza as seguintes tecnologias:
+- 📊 **Painel interativo** com visualização de métricas importantes
+- 🔍 **Pesquisa avançada** para encontrar produtos rapidamente
+- 📋 **Categorização inteligente** de produtos relacionados com a apicultura
+- 📉 **Alertas de stock reduzido** para evitar falta de itens essenciais
+- 📝 **Histórico de movimentações** para rastreamento completo
+- 🔄 **Sincronização com Firebase** para backup e acesso em múltiplos dispositivos
+- 🌓 **Tema claro/escuro** com deteção automática das preferências do sistema
 
-- [React Native](https://reactnative.dev/) - Framework para desenvolvimento móvel
-- [TypeScript](https://www.typescriptlang.org/) - Linguagem de programação
-- [React Navigation](https://reactnavigation.org/) - Navegação entre telas
-- [React Native Reanimated](https://docs.swmansion.com/react-native-reanimated/) - Animações fluidas
-- [React Native Vector Icons](https://github.com/oblador/react-native-vector-icons) - Pacote de ícones
+## 🛠️ Tecnologias Utilizadas
 
-## 🛠️ Requisitos
-
-- Node.js 18 ou superior
-- React Native CLI
-- Xcode (para iOS)
-- Android Studio (para Android)
-- CocoaPods (para iOS)
-
-## ⚙️ Como Executar
-
-### Preparando o ambiente
-
-Certifique-se de ter configurado seu ambiente seguindo o [Guia de Configuração do React Native](https://reactnative.dev/docs/environment-setup).
-
-### Instalando dependências
-
-```bash
-# Instalar dependências do Node.js
-npm install
-
-# Para iOS, instalar dependências do CocoaPods
-cd ios && pod install && cd ..
-```
-
-### Executando o projeto
-
-```bash
-# Iniciar o Metro Bundler
-npm start
-
-# Executar no Android
-npm run android
-
-# Executar no iOS
-npm run ios
-```
+- **React Native**: Framework para desenvolvimento móvel multiplataforma
+- **TypeScript**: Linguagem de programação com tipagem estática
+- **Firebase**: Backend as a Service para armazenamento e sincronização de dados
+- **React Navigation**: Sistema de navegação entre ecrãs
+- **Vector Icons**: Biblioteca de ícones para a interface
+- **AsyncStorage**: Armazenamento local persistente
+- **Linear Gradient**: Efeitos de gradiente para a interface
+- **Safe Area Context**: Gestão de áreas seguras em diferentes dispositivos
 
 ## 📂 Estrutura do Projeto
 
-```
-src/
-├── assets/                # Recursos estáticos (imagens, ícones, fontes)
-│   ├── images/           # Imagens utilizadas na aplicação
-│   ├── icons/            # Ícones personalizados
-│   └── fonts/            # Fontes customizadas
-├── components/           # Componentes reutilizáveis
-│   ├── ui/               # Componentes de UI básicos
-│   ├── layout/           # Componentes de layout
-│   └── forms/            # Componentes relacionados a formulários
-├── config/               # Configurações da aplicação
-├── constants/            # Constantes e valores fixos
-├── context/              # Contextos do React para estado global
-├── data/                 # Dados mockados ou lógica de dados
-├── hooks/                # Custom hooks reutilizáveis
-├── navigation/           # Configuração de navegação e rotas
-├── screens/              # Componentes de tela/página
-├── services/             # Serviços para interação com APIs
-├── styles/               # Estilos globais e temas
-├── types/                # Definições de tipos TypeScript
-└── utils/                # Funções utilitárias
-```
+\`\`\`
+inventario/
+├── android/                   # Configurações nativas do Android
+├── ios/                       # Configurações nativas do iOS
+├── src/                       # Código fonte principal
+│   ├── components/            # Componentes reutilizáveis
+│   │   ├── AnimatedCard.tsx
+│   │   ├── CategoryCard.tsx
+│   │   ├── Menu.tsx
+│   │   ├── ProductCard.tsx
+│   │   ├── ScreenLayout.tsx
+│   │   ├── SearchBar.tsx
+│   │   └── ThemeToggle.tsx
+│   ├── constants/             # Constantes da aplicação
+│   │   ├── categories.ts
+│   │   ├── index.ts
+│   │   └── menu.ts
+│   ├── context/               # Contextos React
+│   │   └── ThemeContext.tsx
+│   ├── data/                  # Dados mockados para desenvolvimento
+│   │   └── mockData.ts
+│   ├── navigation/            # Configuração de navegação
+│   │   └── AppNavigator.tsx
+│   ├── screens/               # Ecrãs da aplicação
+│   │   ├── AddProductScreen.tsx
+│   │   ├── CategoryProductsScreen.tsx
+│   │   ├── DashboardScreen.tsx
+│   │   ├── HistoryScreen.tsx
+│   │   ├── HomeScreen.tsx
+│   │   └── LowStockScreen.tsx
+│   ├── styles/                # Estilos globais
+│   │   ├── index.ts
+│   │   └── theme.ts
+│   ├── types/                 # Definições de tipos TypeScript
+│   │   ├── global.d.ts
+│   │   ├── index.ts
+│   │   ├── navigation.types.ts
+│   │   ├── product.types.ts
+│   │   └── ui.types.ts
+│   └── utils/                 # Utilitários
+│       └── responsive.ts
+├── App.tsx                    # Componente principal da app
+├── index.js                   # Ponto de entrada da aplicação
+├── package.json               # Dependências e scripts
+└── tsconfig.json              # Configuração do TypeScript
+\`\`\`
 
-## 📋 Convenções de Código
 
-### Nomenclatura
+## 🚀 Configuração e Execução
 
-- **Componentes**: PascalCase (ex: `CategoryCard.tsx`)
-- **Hooks**: camelCase com prefixo "use" (ex: `useProductData.ts`)
-- **Utilitários**: camelCase (ex: `dateFormatter.ts`)
-- **Constantes**: UPPER_SNAKE_CASE para constantes, camelCase para objetos
+### Pré-requisitos
 
-### Estrutura de Componentes
+- Node.js (v18 ou superior)
+- npm ou yarn
+- React Native CLI
+- Cocoapods (para iOS)
+- Android Studio ou Xcode
+- JDK 11+
 
-```
-Button/
-├── index.tsx          # Componente principal para facilitar importação
-├── Button.tsx         # Implementação do componente
-├── Button.styles.ts   # Estilos do componente
-└── Button.types.ts    # Tipos específicos do componente
-```
+### Instalação
 
-### Padrões de Importação
+1. Clona o repositório:
+\`\`\`
+git clone https://github.com/teu-utilizador/inventario.git
+cd inventario
+\`\`\`
 
-Organização recomendada:
-1. Bibliotecas externas
-2. Componentes e hooks internos
-3. Utilitários, constantes e tipos
-4. Estilos
 
-```typescript
-// 1. Bibliotecas externas
-import React, { useState } from 'react';
-import { View, Text } from 'react-native';
+2. Instala as dependências:
+\`\`\`
+npm install
+# ou
+yarn install
+\`\`\`
 
-// 2. Componentes e hooks internos
-import { Button } from '../components/ui';
-import { useProducts } from '../hooks';
 
-// 3. Utilitários, constantes e tipos
-import { formatDate } from '../utils';
-import { COLORS } from '../constants';
-import type { Product } from '../types';
+3. Para iOS, instala os pods:
+\`\`\`
+cd ios && pod install && cd ..
+\`\`\`
 
-// 4. Estilos
-import styles from './styles';
-```
+
+### Execução
+
+- **Android:**
+\`\`\`
+npm run android
+# ou
+yarn android
+\`\`\`
+
+
+- **iOS:**
+\`\`\`
+npm run ios
+# ou
+yarn ios
+\`\`\`
+
+
+## 📱 Ecrãs Principais
+
+### Início
+Ecrã principal com categorias de produtos e acesso rápido às funcionalidades.
+
+### Painel
+Visão geral com métricas e informações sobre o inventário.
+
+### Produtos por Categoria
+Lista de produtos de uma categoria específica com opções de gestão.
+
+### Adicionar Produto
+Formulário para adicionar novos produtos ao inventário.
+
+### Histórico
+Histórico de movimentações com filtros por tipo (entrada/saída).
+
+### Stock Reduzido
+Alerta de produtos com stock abaixo do limite estabelecido.
+
+## 🎨 Tema e Personalização
+
+A aplicação suporta temas claro e escuro, com deteção automática das preferências do sistema. O utilizador também pode alternar manualmente entre os temas através do menu de configurações.
+
+## 🔒 Armazenamento de Dados
+
+Os dados são armazenados localmente utilizando AsyncStorage e sincronizados com o Firebase Realtime Database quando há ligação disponível.
+
+
+## 👨‍💻 Autor
+
+Desenvolvido por [David Oliveira](linkedin.com/in/david-oliveira-8899412b).
 
 ## 🤝 Contribuição
 
-Para contribuir com este projeto:
+Contribuições são bem-vindas! Sente-te à vontade para abrir issues ou enviar pull requests.
 
-1. Crie uma branch a partir da `main`
-2. Implemente suas alterações
-3. Certifique-se de que o código segue os padrões estabelecidos
-4. Envie um pull request
-
- 
+1. Faz um fork do projeto
+2. Cria a tua branch de funcionalidade (\`git checkout -b funcionalidade/funcionalidade-incrivel\`)
+3. Faz commit das tuas alterações (\`git commit -m 'Adicionar: funcionalidade incrível'\`)
+4. Faz push para a branch (\`git push origin funcionalidade/funcionalidade-incrivel\`)
+5. Abre um Pull Request
