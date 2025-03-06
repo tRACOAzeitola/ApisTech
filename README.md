@@ -159,13 +159,10 @@ A aplicação suporta temas claro e escuro, com deteção automática das prefer
 
 Os dados são armazenados localmente utilizando AsyncStorage e sincronizados com o Firebase Realtime Database quando há ligação disponível.
 
-## 📄 Licença
-
-Este projeto está licenciado sob a [Licença MIT](LICENSE).
 
 ## 👨‍💻 Autor
 
-Desenvolvido por [O Teu Nome](https://github.com/teu-utilizador).
+Desenvolvido por [David Oliveira](linkedin.com/in/david-oliveira-8899412b).
 
 ## 🤝 Contribuição
 
