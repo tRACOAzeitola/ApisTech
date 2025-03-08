@@ -1,49 +1,77 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useColorScheme, Platform } from 'react-native';
+import { useColorScheme, Platform, Appearance } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Definição de cores conforme as diretrizes de Material Design (Android) e Human Interface (iOS)
+// Definição de cores conforme a imagem de referência (modo escuro)
 const colors = {
   // Cores primárias
   primary: {
-    light: '#ffab40', // Âmbar (cor de mel) para tema claro
-    dark: '#ffab40',  // Âmbar (cor de mel) para tema escuro
+    light: '#FF3B30', // Vermelho para tema claro
+    dark: '#FF3B30',  // Vermelho para tema escuro (como na imagem)
+  },
+  accent: {
+    light: '#007AFF', // Azul para acentos no tema claro
+    dark: '#007AFF',  // Azul para acentos no tema escuro
   },
   // Cores de fundo
   background: {
     light: Platform.OS === 'ios' ? '#F2F2F7' : '#FAFAFA',
-    dark: Platform.OS === 'ios' ? '#000000' : '#121212',
+    dark: '#000000', // Preto puro como na imagem
   },
   // Cor de cartões/superfícies
   surface: {
     light: Platform.OS === 'ios' ? '#FFFFFF' : '#FFFFFF',
-    dark: Platform.OS === 'ios' ? '#1C1C1E' : '#1E1E1E',
+    dark: '#000000', // Cartões pretos como na imagem
+  },
+  cardBackground: {
+    light: '#FFFFFF',
+    dark: '#151515', // Cinza muito escuro para os cartões
+  },
+  // Cores para interruptores (toggle switches)
+  switch: {
+    activeTrack: {
+      light: '#007AFF',
+      dark: '#007AFF',
+    },
+    inactiveTrack: {
+      light: 'rgba(0, 0, 0, 0.1)',
+      dark: 'rgba(255, 255, 255, 0.2)',
+    },
+    thumb: {
+      light: '#FFFFFF',
+      dark: '#FFFFFF',
+    },
   },
   // Textos
   text: {
     primary: {
       light: Platform.OS === 'ios' ? '#000000' : '#212121',
-      dark: Platform.OS === 'ios' ? '#FFFFFF' : '#FFFFFF',
+      dark: '#FFFFFF', // Branco para texto principal
     },
     secondary: {
       light: Platform.OS === 'ios' ? '#8E8E93' : '#757575',
-      dark: Platform.OS === 'ios' ? '#8E8E93' : '#999999',
+      dark: '#999999', // Cinza claro para texto secundário
+    },
+    accent: {
+      light: '#007AFF',
+      dark: '#007AFF', // Azul para texto de ação
     },
   },
   // Bordas
   border: {
     light: Platform.OS === 'ios' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(0, 0, 0, 0.12)',
-    dark: Platform.OS === 'ios' ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.12)',
+    dark: 'rgba(255, 255, 255, 0.1)', // Borda sutil
   },
-  // Categorias específicas para o sistema
+  // Categorias específicas para o sistema (cores vibrantes em fundo escuro)
   categoryColors: [
-    '#ffab40', // Mel
-    '#4fc3f7', // Material de Colmeia
-    '#81c784', // Produtos Veterinários
-    '#e57373', // Embalamento
-    '#ba68c8', // Material de Visita
-    '#ffd54f', // Equipamento de Melaria
-    '#7986cb', // Ferramentas Apícolas
-    '#ff8a65', // Cera
+    '#FCD34D', // Amarelo para Mel (como na imagem)
+    '#60A5FA', // Azul para Material de Colmeia (como na imagem)
+    '#FC444D', // Vermelho para Produtos Veterinários 
+    '#A3A3A3', // Cinza para Embalamento
+    '#4ADE80', // Verde para Material de Visita
+    '#93C5FD', // Azul claro para Equipamento de Melaria
+    '#C084FC', // Roxo para Ferramentas Apícolas
+    '#FDBA74', // Laranja para Cera
   ],
 };
 
@@ -90,6 +118,8 @@ interface ThemeContextType {
   colors: any;
   sizing: any;
   toggleTheme: () => void;
+  setThemeMode: (mode: 'system' | 'manual') => void;
+  themeMode: 'system' | 'manual';
   getShadow: (elevation?: number) => any;
   isDark: boolean;
 }
@@ -101,36 +131,109 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 export const ThemeProvider: React.FC<{children: React.ReactNode}> = ({ children }) => {
   const deviceColorScheme = useColorScheme();
   const [theme, setTheme] = useState<ThemeType>(deviceColorScheme || 'dark');
+  const [themeMode, setThemeMode] = useState<'system' | 'manual'>('system');
   const isDark = theme === 'dark';
 
-  // Atualizar o tema sempre que o esquema de cores do dispositivo mudar
+  // Carregar preferências salvas ao iniciar
   useEffect(() => {
-    if (deviceColorScheme) {
+    const loadThemePreferences = async () => {
+      try {
+        const savedThemeMode = await AsyncStorage.getItem('@theme_mode');
+        if (savedThemeMode) {
+          setThemeMode(savedThemeMode as 'system' | 'manual');
+        }
+
+        // Se o modo for manual, carregar o tema salvo
+        if (savedThemeMode === 'manual') {
+          const savedTheme = await AsyncStorage.getItem('@theme');
+          if (savedTheme) {
+            setTheme(savedTheme as ThemeType);
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao carregar preferências de tema:', error);
+      }
+    };
+
+    loadThemePreferences();
+  }, []);
+
+  // Atualizar o tema sempre que o esquema de cores do dispositivo mudar (se no modo sistema)
+  useEffect(() => {
+    if (themeMode === 'system' && deviceColorScheme) {
       setTheme(deviceColorScheme);
     }
-  }, [deviceColorScheme]);
+  }, [deviceColorScheme, themeMode]);
 
-  const toggleTheme = () => {
-    setTheme(prev => (prev === 'light' ? 'dark' : 'light'));
+  // Adicionar listener para mudanças de aparência do sistema
+  useEffect(() => {
+    const subscription = Appearance.addChangeListener(({ colorScheme }) => {
+      if (themeMode === 'system' && colorScheme) {
+        setTheme(colorScheme as ThemeType);
+      }
+    });
+
+    return () => {
+      // Remover o listener quando o componente for desmontado
+      subscription.remove();
+    };
+  }, [themeMode]);
+
+  const toggleTheme = async () => {
+    const newTheme = theme === 'light' ? 'dark' : 'light';
+    setTheme(newTheme);
+    
+    // Se estiver no modo manual, salvar a preferência
+    if (themeMode === 'manual') {
+      try {
+        await AsyncStorage.setItem('@theme', newTheme);
+      } catch (error) {
+        console.error('Erro ao salvar preferência de tema:', error);
+      }
+    }
+  };
+
+  // Função para alterar o modo de tema (sistema ou manual)
+  const handleSetThemeMode = async (mode: 'system' | 'manual') => {
+    setThemeMode(mode);
+    try {
+      await AsyncStorage.setItem('@theme_mode', mode);
+      
+      // Se mudar para o modo sistema, aplicar o tema do sistema
+      if (mode === 'system' && deviceColorScheme) {
+        setTheme(deviceColorScheme);
+      } else if (mode === 'manual') {
+        // Se mudar para o modo manual, salvar o tema atual
+        await AsyncStorage.setItem('@theme', theme);
+      }
+    } catch (error) {
+      console.error('Erro ao salvar modo de tema:', error);
+    }
   };
 
   // Valores a serem compartilhados pelo contexto
   const value = {
     theme,
     isDark,
+    themeMode,
     colors: {
-      primary: colors.primary[theme],
+      primary: colors.primary,
+      accent: colors.accent,
       background: colors.background[theme],
       surface: colors.surface[theme],
+      cardBackground: colors.cardBackground[theme], // Usar tema correto
       text: {
         primary: colors.text.primary[theme],
         secondary: colors.text.secondary[theme],
+        accent: colors.text.accent[theme],
       },
       border: colors.border[theme],
       categoryColors: colors.categoryColors,
+      switch: colors.switch, // Adicionar as cores do switch
     },
     sizing,
     toggleTheme,
+    setThemeMode: handleSetThemeMode,
     getShadow,
   };
 

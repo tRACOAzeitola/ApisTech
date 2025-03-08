@@ -1,23 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
-  StatusBar,
   TouchableOpacity,
   TextInput,
   ScrollView,
   Alert,
+  SafeAreaView,
 } from 'react-native';
-import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import { useRoute, RouteProp } from '@react-navigation/native';
 import { CATEGORIES } from '../data/mockData';
+import { RootStackParamList } from '../types';
+import ScreenLayout from '../components/ScreenLayout';
+import { scale } from '../utils/responsive';
+import CategoryTabs from '../components/CategoryTabs';
+
+type AddProductScreenRouteProp = RouteProp<RootStackParamList, 'AddProduct'>;
 
 const AddProductScreen: React.FC = () => {
+  const route = useRoute<AddProductScreenRouteProp>();
+  
   const [productName, setProductName] = useState('');
   const [quantity, setQuantity] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [notes, setNotes] = useState('');
+  const [location, setLocation] = useState('Armazém');
+  const [activeCategory, setActiveCategory] = useState<string>('all');
+  
+  useEffect(() => {
+    if (route.params?.categoryId) {
+      setSelectedCategory(route.params.categoryId);
+    }
+  }, [route.params]);
 
   const handleSaveProduct = () => {
     if (!productName || !quantity || !selectedCategory) {
@@ -27,12 +42,25 @@ const AddProductScreen: React.FC = () => {
       );
       return;
     }
-
-    // Aqui você adicionaria a lógica para salvar o produto
+    
+    const newProduct = {
+      id: Math.random().toString(36).substring(2, 15),
+      name: productName,
+      categoryId: selectedCategory,
+      quantity: parseFloat(quantity),
+      unit: CATEGORIES.find(cat => cat.id === selectedCategory)?.unit || 'kg',
+      dateAdded: new Date(),
+      dateModified: new Date(),
+      location: location,
+      notes: notes || undefined
+    };
+    
+    console.log('Novo produto:', newProduct);
+    
     Alert.alert(
       'Produto Adicionado',
-      `${productName} foi adicionado ao inventário.`,
-      [{ text: 'OK', onPress: () => clearForm() }]
+      `${productName} foi adicionado com sucesso.`,
+      [{ text: 'OK', onPress: clearForm }]
     );
   };
 
@@ -43,17 +71,13 @@ const AddProductScreen: React.FC = () => {
     setNotes('');
   };
 
+  const handleCategoryChange = (categoryId: string) => {
+    setActiveCategory(categoryId);
+    // Adicionar lógica adicional se necessário
+  };
+
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#121212" />
-
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton}>
-          <MaterialCommunityIcons name="arrow-left" size={24} color="#FFFFFF" />
-        </TouchableOpacity>
-        <Text style={styles.title}>Adicionar Produto</Text>
-      </View>
-
+    <ScreenLayout title="Adicionar Produto">
       <ScrollView style={styles.content}>
         <View style={styles.formGroup}>
           <Text style={styles.label}>Nome do Produto *</Text>
@@ -113,6 +137,17 @@ const AddProductScreen: React.FC = () => {
         </View>
 
         <View style={styles.formGroup}>
+          <Text style={styles.label}>Localização</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Local de armazenamento"
+            placeholderTextColor="#999999"
+            value={location}
+            onChangeText={setLocation}
+          />
+        </View>
+
+        <View style={styles.formGroup}>
           <Text style={styles.label}>Notas</Text>
           <TextInput
             style={[styles.input, styles.textArea]}
@@ -133,52 +168,39 @@ const AddProductScreen: React.FC = () => {
           <Text style={styles.saveButtonText}>Salvar Produto</Text>
         </TouchableOpacity>
       </ScrollView>
-    </SafeAreaView>
+
+      <CategoryTabs 
+        activeCategory={activeCategory}
+        onCategoryChange={handleCategoryChange}
+      />
+    </ScreenLayout>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#121212',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  backButton: {
-    marginRight: 16,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-  },
   content: {
     flex: 1,
-    paddingHorizontal: 16,
+    padding: scale(16),
   },
   formGroup: {
-    marginBottom: 24,
+    marginBottom: scale(24),
   },
   label: {
     color: '#FFFFFF',
-    fontSize: 16,
-    marginBottom: 8,
+    fontSize: scale(16),
+    marginBottom: scale(8),
   },
   input: {
     backgroundColor: '#2A2A2A',
-    borderRadius: 8,
+    borderRadius: scale(8),
     color: '#FFFFFF',
-    fontSize: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    fontSize: scale(16),
+    paddingHorizontal: scale(12),
+    paddingVertical: scale(10),
   },
   textArea: {
-    height: 100,
-    paddingTop: 12,
+    height: scale(100),
+    paddingTop: scale(12),
   },
   categoryContainer: {
     flexDirection: 'row',
@@ -186,18 +208,18 @@ const styles = StyleSheet.create({
   },
   categoryButton: {
     backgroundColor: '#2A2A2A',
-    borderRadius: 8,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    marginRight: 8,
-    marginBottom: 8,
+    borderRadius: scale(8),
+    paddingVertical: scale(8),
+    paddingHorizontal: scale(12),
+    marginRight: scale(8),
+    marginBottom: scale(8),
   },
   categoryButtonSelected: {
     backgroundColor: '#3498DB',
   },
   categoryButtonText: {
     color: '#CCCCCC',
-    fontSize: 14,
+    fontSize: scale(14),
   },
   categoryButtonTextSelected: {
     color: '#FFFFFF',
@@ -210,34 +232,34 @@ const styles = StyleSheet.create({
   quantityInput: {
     flex: 1,
     backgroundColor: '#2A2A2A',
-    borderTopLeftRadius: 8,
-    borderBottomLeftRadius: 8,
+    borderTopLeftRadius: scale(8),
+    borderBottomLeftRadius: scale(8),
     color: '#FFFFFF',
-    fontSize: 16,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    fontSize: scale(16),
+    paddingHorizontal: scale(12),
+    paddingVertical: scale(10),
   },
   unitSelector: {
     backgroundColor: '#3A3A3A',
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    borderTopRightRadius: 8,
-    borderBottomRightRadius: 8,
+    paddingHorizontal: scale(12),
+    paddingVertical: scale(12),
+    borderTopRightRadius: scale(8),
+    borderBottomRightRadius: scale(8),
   },
   unitText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: scale(16),
   },
   saveButton: {
     backgroundColor: '#00b894',
-    borderRadius: 8,
-    paddingVertical: 14,
+    borderRadius: scale(8),
+    paddingVertical: scale(14),
     alignItems: 'center',
-    marginVertical: 24,
+    marginVertical: scale(24),
   },
   saveButtonText: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: scale(16),
     fontWeight: 'bold',
   },
 });

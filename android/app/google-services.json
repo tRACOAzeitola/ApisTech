@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "708584521737",
+    "firebase_url": "https://melcata-armazem-default-rtdb.firebaseio.com",
+    "project_id": "melcata-armazem",
+    "storage_bucket": "melcata-armazem.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:708584521737:android:ba13b0d63ec56b60b878d8",
+        "android_client_info": {
+          "package_name": "com.inventario"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDFMfxmbW12k2NnQqVlhEWN-x_AQ7a87x0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

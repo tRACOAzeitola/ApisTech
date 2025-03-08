@@ -4,81 +4,81 @@ export const CATEGORIES: ProductCategory[] = [
   {
     id: '1',
     name: 'Mel',
-    icon: 'water',
-    iconFamily: 'MaterialCommunityIcons',
-    totalStock: 2015,
+    icon: 'tint',
+    iconFamily: 'FontAwesome5',
+    totalStock: 2000,
     unit: 'kg',
-    color: '#F1C232',
-    count: 0
+    color: '#C8FF00', // Amarelo-verde como na imagem
+    count: 2
   },
   {
     id: '2',
     name: 'Material de Colmeia',
-    icon: 'cube',
-    iconFamily: 'FontAwesome',
-    totalStock: 1509,
+    icon: 'home',
+    iconFamily: 'FontAwesome5',
+    totalStock: 3317,
     unit: 'Unidades',
-    color: '#8C8C8C',
-    count: 6
+    color: '#3F9FFF', // Azul como na imagem
+    count: 7
   },
   {
     id: '3',
     name: 'Produtos Veterinários',
-    icon: 'medical-bag',
-    iconFamily: 'MaterialCommunityIcons',
-    totalStock: 1,
+    icon: 'medkit',
+    iconFamily: 'FontAwesome5',
+    totalStock: 60,
     unit: 'Unidades',
-    color: '#FF5252',
+    color: '#FF4257', // Vermelho como na imagem
     count: 1
   },
   {
     id: '4',
     name: 'Embalamento',
-    icon: 'package',
-    iconFamily: 'FontAwesome',
-    totalStock: 695,
+    icon: 'box',
+    iconFamily: 'FontAwesome5',
+    totalStock: 405,
     unit: 'Unidades',
-    color: '#8C8C8C',
-    count: 6
+    color: '#9CA3AF', // Cinza como na imagem
+    count: 3
   },
   {
     id: '5',
     name: 'Material de Visita',
-    icon: 'toilet',
-    iconFamily: 'FontAwesome',
-    totalStock: 5,
+    icon: 'toolbox',
+    iconFamily: 'FontAwesome5',
+    totalStock: 12,
     unit: 'Unidades',
-    color: '#9B59B6',
-    count: 5
+    color: '#3B82F6', // Azul como na imagem 
+    count: 3
   },
   {
     id: '6',
     name: 'Equipamento de Melaria',
-    icon: 'cogs',
-    iconFamily: 'FontAwesome',
-    totalStock: 4,
+    icon: 'cog',
+    iconFamily: 'FontAwesome5',
+    totalStock: 2,
     unit: 'Unidades',
-    color: '#3498DB',
-    count: 4
+    color: '#38BDF8', // Azul claro como na imagem
+    count: 2
   },
   {
     id: '7',
     name: 'Ferramentas Apícolas',
     icon: 'tools',
-    iconFamily: 'FontAwesome',
+    iconFamily: 'FontAwesome5',
     totalStock: 4,
     unit: 'Unidades',
-    color: '#A0522D',
+    color: '#A78BFA', // Roxo 
     count: 4
   },
   {
     id: '8',
     name: 'Cera',
-    icon: 'hexagon',
-    iconFamily: 'MaterialCommunityIcons',
+    icon: 'certificate',
+    iconFamily: 'FontAwesome5',
     totalStock: 2,
     unit: 'Unidades',
-    color: '#F1C232',
+    color: '#FB923C', // Laranja
     count: 2
   },
 ];
@@ -123,29 +123,4 @@ export const PRODUCTS: Product[] = [
   // Adicione mais produtos conforme necessário
 ];
 
-export const MENU_OPTIONS: MenuOption[] = [
-  {
-    id: '1',
-    name: 'Adicionar Produto',
-    icon: 'plus',
-    screen: 'AddProduct',
-  },
-  {
-    id: '2',
-    name: 'Dashboard',
-    icon: 'chart-line',
-    screen: 'Dashboard',
-  },
-  {
-    id: '3',
-    name: 'Histórico',
-    icon: 'history',
-    screen: 'History',
-  },
-  {
-    id: '4',
-    name: 'Baixo Stock',
-    icon: 'alert-triangle',
-    screen: 'LowStock',
-  },
-];
+// MENU_OPTIONS foi movido para /src/constants/menu.ts

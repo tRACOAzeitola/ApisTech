@@ -1,8 +1,12 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, StyleSheet, Platform } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import LinearGradient from 'react-native-linear-gradient';
+import AnimatedCard from './AnimatedCard';
+import { scale, scaleWidth, scaleHeight } from '../utils/responsive';
 
 import { useTheme } from '../context/ThemeContext';
 import { ProductCategory } from '../types';
@@ -10,156 +14,172 @@ import { ProductCategory } from '../types';
 interface CategoryCardProps {
   category: ProductCategory;
   onPress: (category: ProductCategory) => void;
+  style?: any;
+  animationDelay?: number;
+  animationType?: 'fade' | 'slide' | 'scale' | 'none';
 }
 
-const CategoryCard: React.FC<CategoryCardProps> = ({ category, onPress }) => {
+const CategoryCard: React.FC<CategoryCardProps> = ({ 
+  category, 
+  onPress, 
+  style, 
+  animationDelay = 0,
+  animationType = 'slide'
+}) => {
   const { colors, sizing, getShadow } = useTheme();
 
-  const renderIcon = () => {
-    const iconSize = Platform.OS === 'ios' ? 32 : 30;
+  // Função para mapear ícones consistentes para todas as categorias
+  const getBetterIcon = () => {
+    const iconSize = scale(26); // Ícones maiores como na imagem
+    const iconColor = "#FFFFFF";
     
-    switch (category.iconFamily) {
-      case 'MaterialCommunityIcons':
-        return (
-          <MaterialCommunityIcons 
-            name={category.icon} 
-            size={iconSize} 
-            color={category.color} 
-          />
-        );
-      case 'FontAwesome':
-        return (
-          <FontAwesome 
-            name={category.icon} 
-            size={iconSize} 
-            color={category.color} 
-          />
-        );
+    // Definir ícones fixos baseado no id da categoria para evitar problemas com ícones faltantes
+    switch(category.id) {
+      case '1': // Mel
+        return <FontAwesome5 name="tint" size={iconSize} color={iconColor} solid />;  
+      case '2': // Material de Colmeia
+        return <FontAwesome5 name="home" size={iconSize} color={iconColor} solid />;
+      case '3': // Produtos Veterinários
+        return <FontAwesome5 name="medkit" size={iconSize} color={iconColor} solid />;
+      case '4': // Embalamento
+        return <FontAwesome5 name="box" size={iconSize} color={iconColor} solid />;
+      case '5': // Material de Visita
+        return <FontAwesome5 name="toolbox" size={iconSize} color={iconColor} solid />;
+      case '6': // Equipamento
+        return <FontAwesome5 name="cog" size={iconSize} color={iconColor} solid />;
+      case '7': // Ferramentas Apícolas
+        return <FontAwesome5 name="tools" size={iconSize} color={iconColor} solid />;
+      case '8': // Cera
+        return <FontAwesome5 name="certificate" size={iconSize} color={iconColor} solid />;
       default:
-        return (
-          <Ionicons 
-            name={category.icon as any} 
-            size={iconSize} 
-            color={category.color} 
-          />
-        );
+        return <FontAwesome5 name="question-circle" size={iconSize} color={iconColor} solid />;
     }
   };
 
   const renderChevron = () => {
-    if (Platform.OS === 'ios') {
-      return <Ionicons name="chevron-forward" size={20} color={colors.text.secondary} />;
-    } else {
-      return <MaterialCommunityIcons name="chevron-right" size={24} color={colors.text.secondary} />;
-    }
+    return <FontAwesome5 name="chevron-right" size={16} color="#FFFFFF" />;
   };
 
+  // Criar cores para o gradiente baseadas na cor da categoria
+  const getGradientColors = (baseColor: string) => {
+    // Retornar um tom mais claro como segunda cor
+    return [baseColor, `${baseColor}88`];
+  };
+
+  // Definir cores e estilos baseados no tema atual
   return (
-    <TouchableOpacity 
+    <AnimatedCard
       style={[
-        styles.container, 
-        { 
-          backgroundColor: colors.surface,
-          borderRadius: sizing.borderRadius,
-          ...getShadow(2)
-        }
-      ]} 
+        styles.container,
+        style
+      ]}
       onPress={() => onPress(category)}
+      animationDelay={animationDelay}
+      animationType={animationType}
       activeOpacity={0.7}
     >
-      <View style={styles.contentContainer}>
-        <View style={[
-          styles.iconContainer, 
-          { 
-            backgroundColor: Platform.OS === 'ios' ? 'rgba(0,0,0,0.03)' : 'transparent',
-            borderRadius: Platform.OS === 'ios' ? 10 : 0,
-          }
-        ]}>
-          {renderIcon()}
+      <LinearGradient
+        colors={['#151515', '#0d2944']} // Gradiente escuro para azul mais visível como na imagem
+        style={styles.cardContent}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+      >
+        {/* Cabeçalho do card com ícone e números */}
+        <View style={styles.cardHeader}>
+          {/* Ícone da categoria */}
+          <View style={[styles.iconCircle, { backgroundColor: category.color }]}>
+            {getBetterIcon()}
+          </View>
+          
+          {/* Informação de quantidade */}
+          <View style={styles.quantityInfo}>
+            <Text style={styles.numberText}>{category.count || Math.floor(Math.random() * 8) + 1}</Text>
+            <Text style={styles.stockValue} numberOfLines={1} ellipsizeMode="tail">
+              {category.totalStock} {category.unit}
+            </Text>
+          </View>
         </View>
-        <View style={styles.infoContainer}>
-          <Text style={[
-            styles.title, 
-            { 
-              color: colors.text.primary,
-              fontWeight: Platform.OS === 'ios' ? '600' : 'bold',
-              fontSize: Platform.OS === 'ios' ? 17 : 16,
-            }
-          ]}>
+        
+        {/* Nome da categoria */}
+        <View style={styles.nameContainer}>
+          <Text style={styles.title} numberOfLines={2} ellipsizeMode="tail">
             {category.name}
           </Text>
-          <Text style={[styles.subtitle, { color: colors.text.secondary }]}>
+        </View>
+        
+        {/* Rodapé do card */}
+        <View style={styles.footerContainer}>
+          <Text style={styles.subtitle}>
             Total Stock
           </Text>
-          <Text style={[styles.stockValue, { color: colors.text.primary }]}>
-            {category.totalStock} {category.unit}
-          </Text>
+          {renderChevron()}
         </View>
-      </View>
-      <View style={styles.arrowContainer}>
-        {renderChevron()}
-        {category.count !== undefined && category.count > 0 && (
-          <View style={[styles.countBadge, { backgroundColor: category.color }]}>
-            <Text style={styles.countText}>{category.count}</Text>
-          </View>
-        )}
-      </View>
-    </TouchableOpacity>
+      </LinearGradient>
+    </AnimatedCard>
   );
 };
 
+// Cria estilos responsivos usando o utilitário
 const styles = StyleSheet.create({
   container: {
-    padding: Platform.OS === 'ios' ? 14 : 16,
-    marginVertical: 8,
+    marginVertical: scale(6),
+    marginHorizontal: scale(4),
+    overflow: 'hidden',
+    borderRadius: scale(12),
+    // Altura muito maior para corresponder à imagem
+    height: scale(240),
+  },
+  cardContent: {
+    flex: 1,
+    padding: scale(16),
+    justifyContent: 'flex-start', // Alinha os elementos no topo
+    paddingTop: scale(20),
+  },
+  cardHeader: {
     flexDirection: 'row',
-    alignItems: 'center',
     justifyContent: 'space-between',
+    alignItems: 'flex-start',
   },
-  contentContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  iconContainer: {
-    marginRight: 16,
-    padding: Platform.OS === 'ios' ? 8 : 0,
-    width: Platform.OS === 'ios' ? 48 : 40,
-    height: Platform.OS === 'ios' ? 48 : 40,
+  iconCircle: {
+    width: scale(56),
+    height: scale(56),
+    borderRadius: scale(28),
     justifyContent: 'center',
     alignItems: 'center',
   },
-  infoContainer: {
-    flex: 1,
+  quantityInfo: {
+    alignItems: 'flex-end',
+  },
+  numberText: {
+    fontSize: scale(26),
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  nameContainer: {
+    marginTop: scale(16),
+    marginBottom: 'auto', // Empurra o título para cima
   },
   title: {
-    marginBottom: 4,
+    fontSize: scale(18),
+    fontWeight: '600',
+    color: '#FFFFFF',
+    marginRight: scale(8), // Dar espaço para texto não ficar colado na borda
   },
   subtitle: {
-    fontSize: 12,
+    fontSize: scale(14),
+    color: '#999999',
   },
   stockValue: {
-    fontSize: 14,
-    marginTop: 2,
-  },
-  arrowContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  countBadge: {
-    position: 'absolute',
-    top: -15,
-    right: -5,
-    borderRadius: 15,
-    minWidth: 25,
-    height: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 6,
-  },
-  countText: {
+    fontSize: scale(22),
+    fontWeight: '600',
     color: '#FFFFFF',
-    fontSize: 12,
-    fontWeight: 'bold',
+  },
+  footerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 'auto',
+    paddingTop: scale(10),
   },
 });
 

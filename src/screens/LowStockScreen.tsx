@@ -3,12 +3,12 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
-  StatusBar,
   TouchableOpacity,
   FlatList,
 } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import ScreenLayout from '../components/ScreenLayout';
+import { scale } from '../utils/responsive';
 
 // Dados mockados para produtos com baixo estoque
 const LOW_STOCK_DATA = [
@@ -89,76 +89,54 @@ const LowStockScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor="#121212" />
+    <ScreenLayout title="Baixo Stock">
+      <View style={styles.container}>
+        <View style={styles.summaryContainer}>
+          <MaterialCommunityIcons name="alert-circle" size={24} color="#ff7675" />
+          <Text style={styles.summaryText}>
+            {LOW_STOCK_DATA.length} produtos com stock abaixo do limite recomendado
+          </Text>
+        </View>
 
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton}>
-          <MaterialCommunityIcons name="arrow-left" size={24} color="#FFFFFF" />
-        </TouchableOpacity>
-        <Text style={styles.title}>Baixo Stock</Text>
+        <FlatList
+          data={LOW_STOCK_DATA}
+          renderItem={renderLowStockItem}
+          keyExtractor={item => item.id}
+          contentContainerStyle={styles.listContent}
+        />
       </View>
-
-      <View style={styles.summaryContainer}>
-        <MaterialCommunityIcons name="alert-circle" size={24} color="#ff7675" />
-        <Text style={styles.summaryText}>
-          4 produtos com stock abaixo do limite recomendado
-        </Text>
-      </View>
-
-      <FlatList
-        data={LOW_STOCK_DATA}
-        renderItem={renderLowStockItem}
-        keyExtractor={item => item.id}
-        contentContainerStyle={styles.listContent}
-      />
-    </SafeAreaView>
+    </ScreenLayout>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-  },
-  backButton: {
-    marginRight: 16,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
   },
   summaryContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#2A2A2A',
-    borderRadius: 8,
-    padding: 12,
-    marginHorizontal: 16,
-    marginVertical: 8,
+    borderRadius: scale(8),
+    padding: scale(12),
+    marginHorizontal: scale(16),
+    marginVertical: scale(8),
   },
   summaryText: {
     color: '#FFFFFF',
-    marginLeft: 8,
-    fontSize: 14,
+    marginLeft: scale(8),
+    fontSize: scale(14),
   },
   listContent: {
-    paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 16,
+    paddingHorizontal: scale(16),
+    paddingTop: scale(8),
+    paddingBottom: scale(16),
   },
   itemContainer: {
     backgroundColor: '#1E1E1E',
-    borderRadius: 10,
-    padding: 16,
-    marginVertical: 8,
+    borderRadius: scale(10),
+    padding: scale(16),
+    marginVertical: scale(8),
   },
   itemHeader: {
     flexDirection: 'row',
@@ -167,61 +145,61 @@ const styles = StyleSheet.create({
   },
   itemName: {
     color: '#FFFFFF',
-    fontSize: 16,
+    fontSize: scale(16),
     fontWeight: 'bold',
   },
   alertBadge: {
     backgroundColor: '#ff7675',
-    borderRadius: 12,
-    width: 24,
-    height: 24,
+    borderRadius: scale(12),
+    width: scale(24),
+    height: scale(24),
     justifyContent: 'center',
     alignItems: 'center',
   },
   itemCategory: {
     color: '#999999',
-    fontSize: 14,
-    marginTop: 4,
+    fontSize: scale(14),
+    marginTop: scale(4),
   },
   stockInfo: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 12,
+    marginTop: scale(12),
   },
   stockText: {
     color: '#FFFFFF',
-    fontSize: 14,
+    fontSize: scale(14),
   },
   percentageText: {
     color: '#ff7675',
-    fontSize: 14,
+    fontSize: scale(14),
     fontWeight: 'bold',
   },
   progressBarContainer: {
-    height: 8,
+    height: scale(8),
     backgroundColor: '#2A2A2A',
-    borderRadius: 4,
-    marginTop: 8,
+    borderRadius: scale(4),
+    marginTop: scale(8),
     overflow: 'hidden',
   },
   progressBar: {
     height: '100%',
-    borderRadius: 4,
+    borderRadius: scale(4),
   },
   actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#3498DB',
-    borderRadius: 8,
-    paddingVertical: 10,
-    marginTop: 16,
+    borderRadius: scale(8),
+    paddingVertical: scale(10),
+    marginTop: scale(16),
   },
   actionButtonText: {
     color: '#FFFFFF',
     fontWeight: 'bold',
-    marginRight: 8,
+    marginRight: scale(8),
   },
 });
 

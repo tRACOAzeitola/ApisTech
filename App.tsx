@@ -5,31 +5,17 @@
  */
 
 import React from 'react';
-import { StatusBar, Platform, useColorScheme } from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-
-// Importações da aplicação com caminhos atualizados
-import { ThemeProvider } from './src/context/ThemeContext';
+import { StatusBar } from 'react-native';
 import AppNavigator from './src/navigation/AppNavigator';
-import { COLORS } from './src/styles/theme';
+import { ThemeProvider } from './src/context/ThemeContext';
 
-/**
- * Componente principal da aplicação
- */
-function App(): React.JSX.Element {
-  const colorScheme = useColorScheme();
-  
+const App = () => {
   return (
-    <SafeAreaProvider>
-      <ThemeProvider>
-        <StatusBar 
-          barStyle="light-content"
-          backgroundColor={COLORS.background.dark}
-        />
-        <AppNavigator />
-      </ThemeProvider>
-    </SafeAreaProvider>
+    <ThemeProvider>
+      <StatusBar barStyle="light-content" backgroundColor="#000000" />
+      <AppNavigator />
+    </ThemeProvider>
   );
-}
+};
 
 export default App;

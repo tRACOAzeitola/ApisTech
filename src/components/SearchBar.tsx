@@ -1,6 +1,8 @@
 import React from 'react';
-import { View, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, TextInput, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import { useTheme } from '../context/ThemeContext';
 
 interface SearchBarProps {
   placeholder: string;
@@ -15,19 +17,34 @@ const SearchBar: React.FC<SearchBarProps> = ({
   onChangeText,
   onClear,
 }) => {
+  const { colors } = useTheme();
   return (
-    <View style={styles.container}>
-      <MaterialCommunityIcons name="magnify" size={20} color="#999" style={styles.searchIcon} />
+    <View style={[
+      styles.container, 
+      { 
+        backgroundColor: '#151515', // Cor escura como na imagem de referência
+        borderColor: 'rgba(255,255,255,0.1)',
+        borderWidth: 0.5,
+        borderRadius: 8,
+      }
+    ]}>
+      <FontAwesome5 
+        name="search" 
+        size={16} 
+        color="#666666" 
+        style={styles.searchIcon} 
+      />
       <TextInput
-        style={styles.input}
+        style={[styles.input, { color: '#FFFFFF' }]}
         placeholder={placeholder}
-        placeholderTextColor="#999"
+        placeholderTextColor="#666666"
         value={value}
         onChangeText={onChangeText}
+        selectionColor="#007AFF"
       />
       {value.length > 0 && (
         <TouchableOpacity onPress={onClear} style={styles.clearButton}>
-          <MaterialCommunityIcons name="close" size={18} color="#999" />
+          <FontAwesome5 name="times-circle" size={16} color="#666666" />
         </TouchableOpacity>
       )}
     </View>
@@ -36,24 +53,25 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#2A2A2A',
-    borderRadius: 8,
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 10,
-    marginVertical: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    marginHorizontal: 16,
+    marginVertical: 12,
   },
   searchIcon: {
-    marginRight: 8,
+    marginRight: 10,
   },
   input: {
     flex: 1,
-    color: '#FFFFFF',
-    fontSize: 16,
-    paddingVertical: 10,
+    fontSize: 15,
+    paddingVertical: 0,
+    fontWeight: '400',
+    paddingHorizontal: 2,
   },
   clearButton: {
-    padding: 4,
+    padding: 6,
   },
 });
 
