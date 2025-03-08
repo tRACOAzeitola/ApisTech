@@ -4,7 +4,7 @@
 
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RouteProp } from '@react-navigation/native';
-import { ProductCategory } from './product.types';
+import { ProductCategory } from './models/category.types';
 
 export type MenuOption = {
   id: string;

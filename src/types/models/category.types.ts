@@ -5,7 +5,7 @@
 import { Unit } from './product.types';
 
 // Famílias de ícones disponíveis
-export type IconFamily = 'MaterialCommunityIcons' | 'FontAwesome' | 'Ionicons';
+export type IconFamily = 'MaterialCommunityIcons' | 'FontAwesome' | 'FontAwesome5' | 'Ionicons';
 
 // Definição completa de categoria
 export interface ProductCategory {

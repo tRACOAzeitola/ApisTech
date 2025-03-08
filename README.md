@@ -12,11 +12,13 @@ Inventario é uma aplicação de gestão de inventário específica para apicult
 
 - 🏠 **Ecrã inicial intuitivo** com acesso rápido a Inventário e Apiários
 - 🐝 **Gestão de apiários** para controlo de equipamentos por local
-- 📊 **Painel interativo** com visualização de métricas importantes
+- 📊 **Painel interativo redesenhado** com resumo de stock e gráficos por categoria
 - 🔍 **Pesquisa avançada** para encontrar produtos rapidamente
 - 📋 **Categorização inteligente** de produtos relacionados com a apicultura
 - 📉 **Alertas de stock reduzido** para evitar falta de itens essenciais
 - 📝 **Histórico de movimentações** para rastreamento completo
+- 📄 **Geração de relatórios em PDF** para inventário, mel e produtos em baixo estoque
+- ➕ **Interface melhorada para adição de produtos** com organização por seções
 - 🔄 **Sincronização com Firebase** para backup e acesso em múltiplos dispositivos
 - 🌓 **Tema claro/escuro** com deteção automática das preferências do sistema
 - 🧭 **Navegação melhorada** com botões de retorno à página inicial
@@ -31,6 +33,9 @@ Inventario é uma aplicação de gestão de inventário específica para apicult
 - **AsyncStorage**: Armazenamento local persistente
 - **Linear Gradient**: Efeitos de gradiente para a interface
 - **Safe Area Context**: Gestão de áreas seguras em diferentes dispositivos
+- **React Native HTML to PDF**: Geração de relatórios em PDF
+- **React Native Print**: Visualização de arquivos PDF gerados
+- **React Native FS**: Operações de arquivo para salvar relatórios
 
 ## 📂 Estrutura do Projeto
 
@@ -39,6 +44,7 @@ inventario/
 ├── android/                   # Configurações nativas do Android
 ├── ios/                       # Configurações nativas do iOS
 ├── src/                       # Código fonte principal
+│   ├── @types/                # Tipos personalizados para bibliotecas
 │   ├── components/            # Componentes reutilizáveis
 │   │   ├── AnimatedCard.tsx
 │   │   ├── CategoryCard.tsx
@@ -73,7 +79,9 @@ inventario/
 │   │   ├── global.d.ts
 │   │   ├── index.ts
 │   │   ├── navigation.types.ts
-│   │   ├── product.types.ts
+│   │   ├── models/
+│   │   │   ├── product.types.ts
+│   │   │   └── category.types.ts
 │   │   └── ui.types.ts
 │   └── utils/                 # Utilitários
 │       └── responsive.ts
@@ -138,29 +146,39 @@ yarn ios
 
 ## 📱 Ecrãs Principais
 
-### Ecrã Principal (Novo)
+### Ecrã Principal
 Menu principal que dá acesso às duas áreas principais da aplicação: Inventário e Apiários. Layout intuitivo com duas colunas de opções.
 
 ### Inventário
 Ecrã de gestão com categorias de produtos e acesso rápido às funcionalidades de stock.
 
-### Apiários (Novo)
+### Apiários
 Ecrã dedicado à gestão de apiários, permitindo controlar equipamento por local.
 
-### Painel
-Visão geral com métricas e informações sobre o inventário.
+### Painel (Redesenhado)
+Visão geral com gráficos de barras por categoria, alertas de estoque baixo e opções para gerar diferentes tipos de relatórios em PDF.
 
 ### Produtos por Categoria
 Lista de produtos de uma categoria específica com opções de gestão.
 
-### Adicionar Produto
-Formulário para adicionar novos produtos ao inventário.
+### Adicionar Produto (Redesenhado)
+Interface melhorada organizada em seções (Informações Básicas, Estado e Localização, Quantidade, Informações Adicionais) para uma experiência mais intuitiva.
 
 ### Histórico
 Histórico de movimentações com filtros por tipo (entrada/saída).
 
 ### Stock Reduzido
 Alerta de produtos com stock abaixo do limite estabelecido.
+
+## 📊 Relatórios em PDF
+
+A nova versão inclui a capacidade de gerar relatórios detalhados em PDF:
+
+- **Relatório Completo**: Inventário detalhado com todos os produtos e estatísticas
+- **Relatório de Mel**: Focado no estoque de mel com análises específicas
+- **Relatório de Baixo Estoque**: Lista de produtos com níveis críticos de estoque
+
+Os relatórios podem ser salvos no dispositivo ou visualizados diretamente na aplicação.
 
 ## 🧭 Navegação Melhorada
 
@@ -197,7 +215,16 @@ Contribuições são bem-vindas! Sente-te à vontade para abrir issues ou enviar
 
 ## 📝 Changelog
 
-### Versão 1.1.0 (Atual)
+### Versão 1.2.0 (Atual)
+- Redesenho completo do Dashboard com visualização de gráficos por categoria
+- Interface de Adicionar Produto remodelada e organizada em seções
+- Adicionada funcionalidade de geração de relatórios em PDF
+- Novo relatório de inventário completo com estatísticas
+- Novo relatório específico para estoque de mel
+- Novo relatório de produtos com baixo estoque
+- Melhorias de performance e correções de bugs
+
+### Versão 1.1.0
 - Adicionado novo ecrã principal com acesso às áreas de Inventário e Apiários
 - Criada área inicial para gestão de Apiários
 - Melhorada a navegação com botões de retorno ao ecrã principal em todas as telas
