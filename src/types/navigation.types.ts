@@ -15,7 +15,9 @@ export type MenuOption = {
 
 // Define os parâmetros de cada rota
 export type RootStackParamList = {
+  Main: undefined;
   Home: undefined;
+  Apiaries: undefined;
   AddProduct: { categoryId?: string } | undefined;
   Dashboard: undefined;
   History: undefined;

@@ -266,6 +266,7 @@ const CategoryProductsScreen: React.FC<CategoryProductsScreenProps> = ({ route, 
       <ScreenLayout 
         title={safeCategory.name} 
         showBackButton={true}
+        showHomeButton={true}
         onBackPress={handleGoBack}
       >
         <View style={styles.container}>
@@ -276,13 +277,17 @@ const CategoryProductsScreen: React.FC<CategoryProductsScreenProps> = ({ route, 
             contentContainerStyle={styles.productsList}
             ListHeaderComponent={
               <View style={styles.header}>
-                <Text style={styles.headerText}>Produtos em {safeCategory.name}</Text>
+                <View style={styles.headerTextContainer}>
+                  <Text style={styles.headerText}>
+                    {safeCategory.name}
+                  </Text>
+                </View>
                 <TouchableOpacity
                   style={styles.addButton}
                   onPress={handleAddProduct}
                 >
                   <MaterialCommunityIcons name="plus" size={24} color="#FFFFFF" />
-                  <Text style={styles.addButtonText}>Novo Produto</Text>
+                  <Text style={styles.addButtonText}>Novo</Text>
                 </TouchableOpacity>
               </View>
             }
@@ -325,11 +330,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingVertical: scale(12),
+    marginBottom: scale(8),
+  },
+  headerTextContainer: {
+    flex: 1,
+    marginRight: scale(12),
   },
   headerText: {
     fontSize: scale(18),
     fontWeight: '600',
     color: '#FFFFFF',
+    flexShrink: 1,
   },
   addButton: {
     flexDirection: 'row',
@@ -338,10 +349,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(12),
     paddingVertical: scale(8),
     borderRadius: Platform.OS === 'ios' ? scale(8) : scale(4),
+    minWidth: scale(80),
+    justifyContent: 'center',
+    flexShrink: 0,
   },
   addButtonText: {
     color: '#FFFFFF',
-    marginLeft: scale(8),
+    marginLeft: scale(4),
     fontWeight: '500',
     fontSize: Platform.OS === 'ios' ? scale(15) : scale(14),
   },

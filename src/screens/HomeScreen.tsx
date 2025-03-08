@@ -46,6 +46,18 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
 // Definir número de colunas com base no tamanho da tela
 const numColumns = isTablet() ? 3 : 2;
 
+// Adicionar objeto de cores para categorias
+const CATEGORY_COLORS = {
+  '1': '#FFD700', // Amarelo dourado para Mel
+  '2': '#8B4513', // Marrom (castanho) para Material de Colmeia
+  '3': '#FF4D4D', // Vermelho para Produtos Veterinários
+  '4': '#9E9E9E', // Cinza para Embalamento
+  '5': '#4DA6FF', // Azul para Material de Visita
+  '6': '#00BFFF', // Azul claro para Equipamento de Melaria
+  '7': '#808080', // Cinza escuro para Ferramentas Apícolas
+  '8': '#FFA500'  // Laranja para Cera
+};
+
 const HomeScreen: React.FC = () => {
   const navigation = useNavigation<HomeScreenNavigationProp>();
   const { colors, sizing, getShadow, isDark } = useTheme();
@@ -112,7 +124,7 @@ const HomeScreen: React.FC = () => {
   };
 
   const handleMenuOptionSelect = (option: MenuOption) => {
-    console.log('Menu option selected:', option.name);
+    console.log('Menu option selected:', option.title);
     
     switch (option.screen) {
       case 'Home':
@@ -192,9 +204,9 @@ const HomeScreen: React.FC = () => {
       <View style={styles.headerContainer}>
         <TouchableOpacity 
           style={styles.iconButton} 
-          onPress={() => navigation.navigate('History')}
+          onPress={() => navigation.navigate('Main')}
         >
-          <MaterialCommunityIcons name="history" size={24} color="#FFFFFF" />
+          <Ionicons name="home" size={24} color="#FFFFFF" />
         </TouchableOpacity>
         
         <Text style={styles.headerTitle}>Inventário</Text>
@@ -239,13 +251,15 @@ const HomeScreen: React.FC = () => {
       )}
       
       {/* Add Product Button below header */}
-      <TouchableOpacity
-        style={styles.addButton}
-        onPress={() => navigation.navigate('AddProduct')}
-      >
-        <Ionicons name="add-circle" size={24} color="#007AFF" style={styles.addButtonIcon} />
-        <Text style={styles.addButtonText}>Adicionar Produto</Text>
-      </TouchableOpacity>
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={() => navigation.navigate('AddProduct', {})}
+        >
+          <Ionicons name="add-circle" size={24} color="#007AFF" style={styles.addButtonIcon} />
+          <Text style={styles.addButtonText} numberOfLines={1} ellipsizeMode="tail">Adicionar Produto</Text>
+        </TouchableOpacity>
+      </View>
 
       {/* Categories Grid - 2x2 layout */}
       <FlatList
@@ -259,23 +273,22 @@ const HomeScreen: React.FC = () => {
           >
             <View style={styles.cardContent}>
               <View style={styles.iconContainer}>
-                {/* Usar os mesmos ícones específicos da apicultura */}
-                {item.id === '1' && <MaterialCommunityIcons name="water" size={28} color={colors.text.primary} />}
-                {item.id === '2' && <MaterialCommunityIcons name="beehive-outline" size={28} color={colors.text.primary} />}
-                {item.id === '3' && <MaterialCommunityIcons name="hospital-box" size={28} color={colors.text.primary} />}
-                {item.id === '4' && <MaterialCommunityIcons name="package-variant" size={28} color={colors.text.primary} />}
-                {item.id === '5' && <MaterialCommunityIcons name="bee" size={28} color={colors.text.primary} />}
-                {item.id === '6' && <MaterialCommunityIcons name="state-machine" size={28} color={colors.text.primary} />}
-                {item.id === '7' && <MaterialCommunityIcons name="hammer-wrench" size={28} color={colors.text.primary} />}
-                {item.id === '8' && <MaterialCommunityIcons name="hexagon-outline" size={28} color={colors.text.primary} />}
+                {item.id === '1' && <MaterialCommunityIcons name="water" size={28} color={CATEGORY_COLORS['1']} />}
+                {item.id === '2' && <MaterialCommunityIcons name="beehive-outline" size={28} color={CATEGORY_COLORS['2']} />}
+                {item.id === '3' && <MaterialCommunityIcons name="hospital-box" size={28} color={CATEGORY_COLORS['3']} />}
+                {item.id === '4' && <MaterialCommunityIcons name="package-variant" size={28} color={CATEGORY_COLORS['4']} />}
+                {item.id === '5' && <MaterialCommunityIcons name="bee" size={28} color={CATEGORY_COLORS['5']} />}
+                {item.id === '6' && <MaterialCommunityIcons name="state-machine" size={28} color={CATEGORY_COLORS['6']} />}
+                {item.id === '7' && <MaterialCommunityIcons name="hammer-wrench" size={28} color={CATEGORY_COLORS['7']} />}
+                {item.id === '8' && <MaterialCommunityIcons name="hexagon-outline" size={28} color={CATEGORY_COLORS['8']} />}
                 {/* Fallback icon for any other categories */}
                 {!['1', '2', '3', '4', '5', '6', '7', '8'].includes(item.id) && 
-                  <MaterialCommunityIcons name="cube-outline" size={28} color={colors.text.primary} />
+                  <MaterialCommunityIcons name="cube-outline" size={28} color="#FFFFFF" />
                 }
               </View>
               
               <View style={styles.categoryInfo}>
-                <Text style={styles.categoryName}>{item.name}</Text>
+                <Text style={styles.categoryName} numberOfLines={1} ellipsizeMode="tail">{item.name}</Text>
                 <Text style={styles.stockLabel}>Total Stock</Text>
                 <Text style={styles.stockValue}>
                   {item.count} {item.count === 1 ? 'item' : 'itens'}
@@ -296,6 +309,7 @@ const HomeScreen: React.FC = () => {
           </TouchableOpacity>
         )}
         contentContainerStyle={styles.categoriesContainer}
+        showsVerticalScrollIndicator={false}
       />
 
       {/* Category Tab Navigation at bottom */}
@@ -358,6 +372,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#1C1C1E',
   },
   headerTitle: {
     fontSize: 32,
@@ -376,24 +392,61 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
   },
+  buttonContainer: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#1C1C1E',
+  },
   addButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 12,
-    marginHorizontal: 16,
-    marginBottom: 16,
+    paddingHorizontal: 16,
+    height: 48,
+    position: 'relative',
+    backgroundColor: '#1C1C1E',
+    borderRadius: 10,
+    maxWidth: '100%',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.2,
+        shadowRadius: 1.5,
+        paddingTop: 10,
+        paddingBottom: 10,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
   },
   addButtonIcon: {
     marginRight: 8,
+    flexShrink: 0,
+    ...Platform.select({
+      ios: {
+        marginTop: 2, // Pequeno ajuste para alinhamento vertical no iOS
+      },
+    }),
   },
   addButtonText: {
     color: '#007AFF',
     fontSize: 18,
     fontWeight: '600',
+    flexShrink: 1,
+    ...Platform.select({
+      ios: {
+        fontSize: 17, // Ajustar tamanho da fonte para iOS
+        fontWeight: '500',
+      },
+    }),
   },
   categoriesContainer: {
     padding: 8,
+    paddingBottom: 80, // Espaço para o CategoryTabs na parte inferior
   },
   categoryCard: {
     flex: 1,
@@ -401,9 +454,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#1C1C1E',
     borderRadius: 12,
     overflow: 'hidden',
+    height: 160,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
   },
   cardContent: {
     padding: 16,
+    height: '100%',
   },
   iconContainer: {
     marginBottom: 12,
@@ -414,6 +480,7 @@ const styles = StyleSheet.create({
   },
   categoryInfo: {
     marginBottom: 8,
+    flex: 1,
   },
   categoryName: {
     fontSize: 20,

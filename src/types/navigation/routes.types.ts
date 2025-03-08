@@ -7,11 +7,17 @@ import { Product } from '../models/product.types';
 
 // Definição de todas as rotas do aplicativo
 export type RootStackParamList = {
+  // Menu principal
+  Main: undefined;
+  
   // Telas principais
   Home: undefined;
   Dashboard: undefined;
   History: undefined;
   LowStock: undefined;
+  
+  // Telas de apiários
+  Apiaries: undefined;
   
   // Telas de produtos
   CategoryProducts: {

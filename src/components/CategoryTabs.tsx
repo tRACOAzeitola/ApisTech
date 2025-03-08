@@ -52,6 +52,19 @@ const CATEGORY_ID_MAPPING: Record<CategoryTabId, string> = {
   'cera': '8'
 };
 
+// Definição das cores específicas para cada categoria
+const CATEGORY_COLORS: Record<CategoryTabId, string> = {
+  'all': '#FFFFFF',         // Branco para "Todos"
+  'mel': '#FFD700',         // Amarelo dourado para "Mel"
+  'colmeia': '#8B4513',     // Marrom (castanho) para "Material de Colmeia"
+  'veterinario': '#FF4D4D', // Vermelho para "Produtos Veterinários"
+  'embalamento': '#9E9E9E', // Cinza para "Embalamento"
+  'visita': '#4DA6FF',      // Azul para "Material de Visita"
+  'melaria': '#00BFFF',     // Azul claro para "Equipamento de Melaria"
+  'ferramentas': '#808080', // Cinza escuro para "Ferramentas Apícolas"
+  'cera': '#FFA500'         // Laranja para "Cera"
+};
+
 // Definição das categorias com seus respectivos ícones
 const CATEGORY_TABS = [
   { id: 'all' as CategoryTabId, name: 'Todos', icon: 'layers' },
@@ -105,8 +118,9 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({
     }
   };
 
-  const getIconComponent = (iconName: string, isActive: boolean) => {
-    const color = isActive ? '#FFFFFF' : '#8E8E93';
+  const getIconComponent = (iconName: string, categoryId: CategoryTabId, isActive: boolean) => {
+    // Use a cor específica da categoria quando ativa, senão use cinza
+    const color = isActive ? CATEGORY_COLORS[categoryId] : '#8E8E93';
     return <MaterialCommunityIcons name={iconName} size={20} color={color} />;
   };
 
@@ -121,7 +135,7 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({
               style={[styles.tabItem, isActive && styles.tabItemActive]}
               onPress={() => handleTabPress(category.id)}
             >
-              {getIconComponent(category.icon, isActive)}
+              {getIconComponent(category.icon, category.id as CategoryTabId, isActive)}
               <Text 
                 style={[styles.tabText, isActive && styles.tabTextActive]}
                 numberOfLines={1}

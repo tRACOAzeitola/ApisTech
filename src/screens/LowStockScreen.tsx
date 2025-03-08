@@ -89,7 +89,7 @@ const LowStockScreen: React.FC = () => {
   };
 
   return (
-    <ScreenLayout title="Baixo Stock">
+    <ScreenLayout title="Baixo Stock" showHomeButton={true}>
       <View style={styles.container}>
         <View style={styles.summaryContainer}>
           <MaterialCommunityIcons name="alert-circle" size={24} color="#ff7675" />

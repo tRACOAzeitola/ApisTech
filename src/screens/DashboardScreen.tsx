@@ -44,7 +44,7 @@ const DashboardScreen: React.FC = () => {
   };
 
   return (
-    <ScreenLayout title="Dashboard">
+    <ScreenLayout title="Dashboard" showHomeButton={true}>
       <ScrollView style={styles.content}>
         <View style={styles.summaryContainer}>
           <View style={styles.summaryCard}>

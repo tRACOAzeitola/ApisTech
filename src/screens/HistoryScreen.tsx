@@ -120,7 +120,7 @@ const HistoryScreen: React.FC = () => {
   };
 
   return (
-    <ScreenLayout title="Histórico">
+    <ScreenLayout title="Histórico" showHomeButton={true}>
       <View style={styles.container}>
         <View style={styles.filterContainer}>
           <TouchableOpacity 

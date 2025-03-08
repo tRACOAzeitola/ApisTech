@@ -77,7 +77,7 @@ const AddProductScreen: React.FC = () => {
   };
 
   return (
-    <ScreenLayout title="Adicionar Produto">
+    <ScreenLayout title="Adicionar Produto" showHomeButton={true}>
       <ScrollView style={styles.content}>
         <View style={styles.formGroup}>
           <Text style={styles.label}>Nome do Produto *</Text>
