@@ -3,92 +3,125 @@ import {
   View, 
   Text, 
   StyleSheet, 
-  TouchableOpacity, 
-  Platform,
-  StatusBar 
+  SafeAreaView, 
+  StatusBar, 
+  ScrollView,
+  TouchableOpacity
 } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { scale } from '../utils/responsive';
 import { useTheme } from '../context/ThemeContext';
+import { RootStackParamList } from '../types';
 
 export interface ScreenLayoutProps {
-  children: React.ReactNode;
   title: string;
+  children: React.ReactNode;
   showBackButton?: boolean;
-  backButton?: boolean;
   showHomeButton?: boolean;
   onBackPress?: () => void;
+  onHomePress?: () => void;
+  rightComponent?: React.ReactNode;
 }
 
-const ScreenLayout: React.FC<ScreenLayoutProps> = ({ 
-  children, 
-  title, 
-  showBackButton, 
-  backButton,
-  showHomeButton = false,
-  onBackPress 
-}) => {
-  const navigation = useNavigation();
-  const route = useRoute();
-  const insets = useSafeAreaInsets();
-  const isHomeScreen = route.name === 'Home';
-  const { colors } = useTheme();
-  
-  const shouldShowBackButton = showBackButton || backButton;
+type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
+const ScreenLayout: React.FC<ScreenLayoutProps> = ({
+  title,
+  children,
+  showBackButton = false,
+  showHomeButton = false,
+  onBackPress,
+  onHomePress,
+  rightComponent
+}) => {
+  const navigation = useNavigation<NavigationProp>();
+  const { colors, isDark } = useTheme();
+  
+  // Determinar se o botão de voltar deve ser exibido
+  const shouldShowBackButton = showBackButton && navigation.canGoBack();
+  
+  // Lidar com navegação para a tela inicial
   const handleHomePress = () => {
-    // @ts-ignore: Navigation type issue
-    navigation.navigate('Main');
+    if (onHomePress) {
+      onHomePress();
+    } else {
+      navigation.navigate('Home');
+    }
+  };
+  
+  // Lidar com ação de voltar
+  const handleBackPress = () => {
+    if (onBackPress) {
+      onBackPress();
+    } else if (navigation.canGoBack()) {
+      navigation.goBack();
+    }
   };
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top, backgroundColor: colors.background.primary }]}>
+    <SafeAreaView style={[
+      styles.container, 
+      { backgroundColor: colors.background }
+    ]}>
       <StatusBar 
-        barStyle="light-content"
-        backgroundColor="#000000"
+        barStyle={isDark ? 'light-content' : 'dark-content'} 
+        backgroundColor="transparent" 
+        translucent 
       />
       
       {/* Header */}
       <View style={styles.header}>
-        {shouldShowBackButton && (
-          <TouchableOpacity 
-            style={styles.backButton}
-            onPress={onBackPress}
-          >
-            <MaterialCommunityIcons 
-              name="arrow-left" 
-              size={scale(24)} 
-              color={colors.text.primary} 
-            />
-          </TouchableOpacity>
-        )}
-        <Text style={[
-          styles.title,
-          { color: colors.text.primary }
-        ]}>{title}</Text>
+        <View style={styles.headerLeftSection}>
+          {shouldShowBackButton && (
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={handleBackPress}
+            >
+              <MaterialCommunityIcons 
+                name="arrow-left" 
+                size={scale(24)} 
+                color={colors.text.primary} 
+              />
+            </TouchableOpacity>
+          )}
+          
+          {showHomeButton && (
+            <TouchableOpacity
+              style={styles.homeButton}
+              onPress={handleHomePress}
+            >
+              <Ionicons 
+                name="home" 
+                size={scale(24)} 
+                color={colors.text.primary} 
+              />
+            </TouchableOpacity>
+          )}
+          
+          <Text style={[
+            styles.headerTitle,
+            { color: colors.text.primary }
+          ]}>
+            {title}
+          </Text>
+        </View>
         
-        {showHomeButton && (
-          <TouchableOpacity 
-            style={styles.homeButton}
-            onPress={handleHomePress}
-          >
-            <Ionicons 
-              name="home" 
-              size={scale(24)} 
-              color={colors.text.primary} 
-            />
-          </TouchableOpacity>
+        {/* Componente direito do cabeçalho */}
+        {rightComponent && (
+          <View style={styles.headerRightSection}>
+            {rightComponent}
+          </View>
         )}
       </View>
-
+      
       {/* Content */}
       <View style={styles.content}>
         {children}
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -99,19 +132,28 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: scale(16),
     paddingVertical: scale(12),
+  },
+  headerLeftSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
   },
   backButton: {
     marginRight: scale(16),
   },
-  title: {
-    fontSize: scale(24),
-    fontWeight: 'bold',
-    flex: 1,
-  },
   homeButton: {
-    marginLeft: scale(16),
+    marginRight: scale(16),
+  },
+  headerTitle: {
+    fontSize: scale(20),
+    fontWeight: 'bold',
+  },
+  headerRightSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   content: {
     flex: 1,

@@ -11,6 +11,10 @@ import CategoryProductsScreen from '../screens/CategoryProductsScreen';
 import HistoryScreen from '../screens/HistoryScreen';
 import LowStockScreen from '../screens/LowStockScreen';
 
+// Novas telas para apiários
+import AddApiaryScreen from '../screens/AddApiaryScreen';
+import ApiaryDetailsScreen from '../screens/ApiaryDetailsScreen';
+
 import { RootStackParamList } from '../types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -34,6 +38,10 @@ const AppNavigator = () => {
         <Stack.Screen name="CategoryProducts" component={CategoryProductsScreen} />
         <Stack.Screen name="History" component={HistoryScreen} />
         <Stack.Screen name="LowStock" component={LowStockScreen} />
+        
+        {/* Novas telas para apiários */}
+        <Stack.Screen name="AddApiary" component={AddApiaryScreen} />
+        <Stack.Screen name="ApiaryDetails" component={ApiaryDetailsScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

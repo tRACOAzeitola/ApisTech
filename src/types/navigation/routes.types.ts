@@ -18,6 +18,11 @@ export type RootStackParamList = {
   
   // Telas de apiários
   Apiaries: undefined;
+  AddApiary: undefined;
+  ApiaryDetails: { apiaryId: string };
+  EditApiary: { apiaryId: string };
+  AddApiaryTask: { apiaryId: string };
+  AddApiaryEquipment: { apiaryId: string };
   
   // Telas de produtos
   CategoryProducts: {

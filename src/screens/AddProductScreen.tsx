@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,8 @@ import {
   Alert,
   SafeAreaView,
   KeyboardAvoidingView,
-  Platform
+  Platform,
+  Switch
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { CATEGORIES } from '../data/mockData';
@@ -17,7 +18,17 @@ import { RootStackParamList } from '../types';
 import { Unit } from '../types/models/product.types';
 import { scale } from '../utils/responsive';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import LinearGradient from 'react-native-linear-gradient';
+import { useTheme } from '../context/ThemeContext';
+
+// Lista de apiários - seria carregada de uma API/banco de dados real
+const APIARIES = [
+  { id: '1', name: 'Apiário Sul' },
+  { id: '2', name: 'Apiário Norte' },
+  { id: '3', name: 'Apiário Centro' },
+  { id: '4', name: 'Apiário Litoral' },
+];
 
 type AddProductScreenRouteProp = RouteProp<RootStackParamList, 'AddProduct'>;
 
@@ -25,17 +36,18 @@ type AddProductScreenRouteProp = RouteProp<RootStackParamList, 'AddProduct'>;
  * Tela de adição de novo produto
  * 
  * Considerações importantes:
- * 1. Validação dos campos obrigatórios: nome, categoria, quantidade
- * 2. A unidade é determinada automaticamente com base na categoria selecionada
- * 3. Valores padrão são definidos quando apropriado (como status "Novo" e localização "Armazém")
- * 4. A pré-seleção de categoria pode ocorrer via parâmetros de navegação
+ * 1. O ID é gerado automaticamente com base na categoria (MEL-, VET-, etc.)
+ * 2. Localização varia para colmeias (armazém ou apiários específicos)
+ * 3. Campos adaptados conforme o tipo de produto
  */
 const AddProductScreen: React.FC = () => {
   const navigation = useNavigation();
   const route = useRoute<AddProductScreenRouteProp>();
+  const { colors, isDark } = useTheme();
   
   // Estados básicos do produto
   const [productName, setProductName] = useState('');
+  const [productId, setProductId] = useState('');
   const [productSubtype, setProductSubtype] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [categoryName, setCategoryName] = useState('Selecionar');
@@ -47,12 +59,61 @@ const AddProductScreen: React.FC = () => {
   // Estados de localização e status
   const [status, setStatus] = useState('Novo');
   const [location, setLocation] = useState('Armazém');
+  const [apiary, setApiary] = useState('');
+  const [isHive, setIsHive] = useState(false); // Flag para identificar se é uma colmeia
   
   // Informações adicionais
   const [campaign, setCampaign] = useState('');
   const [notes, setNotes] = useState('');
   const [stockAlert, setStockAlert] = useState('');
   const [price, setPrice] = useState('');
+
+  // Gerar ID baseado na categoria e subtipo
+  const generateProductId = useCallback(() => {
+    if (!selectedCategory || !productSubtype) return '';
+    
+    // Extrair as 3 primeiras iniciais do subtipo (ou menos, se o subtipo for menor)
+    const subtypeInitials = productSubtype.substring(0, 3).toUpperCase();
+    
+    // Gerar prefixo baseado na categoria
+    let prefix = '';
+    const category = CATEGORIES.find(cat => cat.id === selectedCategory);
+    
+    if (category) {
+      if (category.id === '1') { // Mel
+        prefix = 'MEL';
+      } else if (category.id === '3') { // Produtos Veterinários
+        prefix = 'VET';
+      } else if (category.id === '2') { // Material de Colmeia
+        prefix = 'COL';
+        setIsHive(productSubtype.toLowerCase().includes('colmeia'));
+      } else if (category.id === '4') { // Embalamento
+        prefix = 'EMB';
+      } else if (category.id === '5') { // Material de Visita
+        prefix = 'VIS';
+      } else if (category.id === '6') { // Equipamento de Melaria
+        prefix = 'EQP';
+      } else if (category.id === '7') { // Ferramentas Apícolas
+        prefix = 'FER';
+      } else if (category.id === '8') { // Cera
+        prefix = 'CER';
+      } else {
+        prefix = 'PRD'; // Produto genérico
+      }
+    }
+    
+    if (subtypeInitials.length > 0) {
+      return `${prefix} - ${subtypeInitials}`;
+    }
+    
+    return prefix;
+  }, [selectedCategory, productSubtype]);
+
+  // Atualizar ID quando categoria ou subtipo mudarem
+  useEffect(() => {
+    const newId = generateProductId();
+    setProductId(newId);
+  }, [selectedCategory, productSubtype, generateProductId]);
 
   // Verifica se há uma categoria pré-selecionada nos parâmetros de navegação
   useEffect(() => {
@@ -65,6 +126,11 @@ const AddProductScreen: React.FC = () => {
       if (category) {
         setCategoryName(category.name);
         setUnit(category.unit || 'kg');
+        
+        // Verificar se a categoria está relacionada a colmeias
+        if (category.id === '2') { // Material de Colmeia
+          setIsHive(true);
+        }
       }
     }
   }, [route.params]);
@@ -88,9 +154,18 @@ const AddProductScreen: React.FC = () => {
       return;
     }
     
+    // Verificação adicional para colmeias
+    if (isHive && location !== 'Armazém' && !apiary) {
+      Alert.alert(
+        'Localização Incompleta',
+        'Para colmeias fora do armazém, por favor selecione um apiário.'
+      );
+      return;
+    }
+    
     // Criação do objeto de produto
     const newProduct = {
-      id: Math.random().toString(36).substring(2, 15),
+      id: productId || Math.random().toString(36).substring(2, 15),
       name: productName,
       description: productSubtype || undefined,
       categoryId: selectedCategory,
@@ -103,7 +178,7 @@ const AddProductScreen: React.FC = () => {
       notes: notes || undefined,
       stockAlert: stockAlert ? parseFloat(stockAlert) : undefined,
       price: price ? parseFloat(price) : undefined,
-      location: location,
+      location: isHive && location !== 'Armazém' ? apiary : location,
       // Outros campos podem ser adicionados aqui conforme necessário
     };
     
@@ -126,6 +201,7 @@ const AddProductScreen: React.FC = () => {
    */
   const clearForm = () => {
     setProductName('');
+    setProductId('');
     setProductSubtype('');
     setSelectedCategory('');
     setCategoryName('Selecionar');
@@ -133,6 +209,8 @@ const AddProductScreen: React.FC = () => {
     setUnit('kg');
     setStatus('Novo');
     setLocation('Armazém');
+    setApiary('');
+    setIsHive(false);
     setCampaign('');
     setNotes('');
     setStockAlert('');
@@ -141,10 +219,8 @@ const AddProductScreen: React.FC = () => {
 
   /**
    * Abre o seletor de categorias
-   * Na implementação real, isso abriria um modal ou navegaria para uma tela de seleção
    */
   const handleCategorySelect = () => {
-    // Mock - em produção, isso abriria um modal ou navegaria para uma tela de seleção
     Alert.alert(
       'Selecionar Categoria',
       'Escolha uma categoria:',
@@ -154,6 +230,14 @@ const AddProductScreen: React.FC = () => {
           setSelectedCategory(cat.id);
           setCategoryName(cat.name);
           setUnit(cat.unit || 'kg');
+          
+          // Verificar se a categoria está relacionada a colmeias
+          if (cat.id === '2') { // Material de Colmeia
+            // Verifica se o subtipo já foi preenchido e contém "colmeia"
+            setIsHive(productSubtype.toLowerCase().includes('colmeia'));
+          } else {
+            setIsHive(false);
+          }
         }
       }))
     );
@@ -193,111 +277,222 @@ const AddProductScreen: React.FC = () => {
   };
 
   /**
+   * Abre o seletor de localização para colmeias
+   */
+  const handleLocationSelect = () => {
+    if (isHive) {
+      Alert.alert(
+        'Selecionar Localização',
+        'Onde este produto está localizado?',
+        [
+          { text: 'Armazém', onPress: () => {
+            setLocation('Armazém');
+            setApiary('');
+          }},
+          { text: 'Apiário', onPress: () => {
+            setLocation('Apiário');
+            handleApiarySelect();
+          }},
+          { text: 'Cancelar', style: 'cancel' }
+        ]
+      );
+    } else {
+      Alert.alert(
+        'Selecionar Localização',
+        'Onde este produto está localizado?',
+        [
+          { text: 'Armazém', onPress: () => setLocation('Armazém') },
+          { text: 'Estoque', onPress: () => setLocation('Estoque') },
+          { text: 'Prateleira', onPress: () => setLocation('Prateleira') },
+          { text: 'Outro', onPress: () => {
+            // Permitir inserir localização personalizada
+            setLocation('');
+          }},
+          { text: 'Cancelar', style: 'cancel' }
+        ]
+      );
+    }
+  };
+
+  /**
+   * Abre o seletor de apiários para colmeias
+   */
+  const handleApiarySelect = () => {
+    Alert.alert(
+      'Selecionar Apiário',
+      'Em qual apiário este produto está localizado?',
+      [
+        ...APIARIES.map(apiaryItem => ({
+          text: apiaryItem.name,
+          onPress: () => setApiary(apiaryItem.name)
+        })),
+        { text: 'Cancelar', style: 'cancel' }
+      ]
+    );
+  };
+
+  /**
    * Cancela a adição e volta para a tela anterior
    */
   const handleCancel = () => {
     navigation.goBack();
   };
 
+  // Definir cores baseadas no tema
+  const backgroundColor = isDark ? colors.background : colors.background;
+  const cardBackgroundColor = isDark 
+    ? (colors.cardBackground?.dark || '#302403')
+    : (colors.cardBackground?.light || '#FFFDF7');
+  const textColor = isDark 
+    ? (colors.text?.dark?.primary || '#FFF8E1')
+    : (colors.text?.light?.primary || '#5D2E0D');
+  const secondaryTextColor = isDark 
+    ? (colors.text?.dark?.secondary || '#FFE082') 
+    : (colors.text?.light?.secondary || '#8B4513');
+  const accentColor = isDark
+    ? (colors.primary?.dark || '#FFC107')
+    : (colors.primary?.light || '#FFC107');
+  const borderColor = isDark
+    ? 'rgba(255, 193, 7, 0.2)'  // Amarelo transparente
+    : 'rgba(139, 69, 19, 0.2)'; // Marrom transparente
+
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor }]}>
       {/* Cabeçalho com botões de ação */}
-      <View style={styles.header}>
+      <LinearGradient
+        colors={isDark 
+          ? (colors.gradients?.header?.dark || ['#5D2E0D', '#3E1F08']) 
+          : (colors.gradients?.header?.light || ['#FFC107', '#FFB300'])}
+        style={styles.header}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 0, y: 1 }}
+      >
         <TouchableOpacity onPress={handleCancel} style={styles.headerButton}>
-          <Text style={styles.cancelButtonText}>Cancelar</Text>
+          <Text style={[styles.cancelButtonText, { color: isDark ? '#FFF8E1' : '#5D2E0D' }]}>Cancelar</Text>
         </TouchableOpacity>
         
-        <Text style={styles.headerTitle}>Adicionar Produto</Text>
+        <Text style={[styles.headerTitle, { color: textColor }]}>Adicionar Produto</Text>
         
         <TouchableOpacity onPress={handleSaveProduct} style={styles.headerButton}>
-          <Text style={styles.saveButtonText}>Salvar</Text>
+          <Text style={[styles.saveButtonText, { color: accentColor }]}>Salvar</Text>
         </TouchableOpacity>
-      </View>
+      </LinearGradient>
       
       <KeyboardAvoidingView 
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingContainer}
       >
-        <ScrollView style={styles.content}>
+        <ScrollView 
+          style={styles.content}
+          contentContainerStyle={{ paddingBottom: scale(80) }}
+        >
           {/* SEÇÃO: INFORMAÇÕES BÁSICAS */}
-          <Text style={styles.sectionTitle}>INFORMAÇÕES BÁSICAS</Text>
-          <View style={styles.formSection}>
+          <Text style={[styles.sectionTitle, { color: secondaryTextColor }]}>INFORMAÇÕES BÁSICAS</Text>
+          <View style={[styles.formSection, { backgroundColor: cardBackgroundColor }]}>
             {/* Nome do Produto */}
-            <View style={styles.inputContainer}>
+            <View style={[styles.inputContainer, { borderBottomColor: borderColor }]}>
               <TextInput
-                style={styles.input}
-                placeholder="Nome"
-                placeholderTextColor="#999999"
+                style={[styles.input, { color: textColor }]}
+                placeholder="Nome do Produto"
+                placeholderTextColor={secondaryTextColor}
                 value={productName}
                 onChangeText={setProductName}
               />
             </View>
             
-            {/* Campo MEL (Descrição ou tipo do mel) */}
-            <View style={styles.inputContainer}>
+            {/* ID do Produto (gerado automaticamente) */}
+            <View style={[styles.inputContainer, { borderBottomColor: borderColor }]}>
+              <Text style={[styles.inputLabel, { color: secondaryTextColor }]}>ID do Produto</Text>
+              <Text style={[styles.generatedIdText, { color: accentColor }]}>{productId || 'Automático'}</Text>
+            </View>
+            
+            {/* Subtipo */}
+            <View style={[styles.inputContainer, { borderBottomColor: borderColor }]}>
               <TextInput
-                style={styles.input}
-                placeholder="MEL"
-                placeholderTextColor="#999999"
+                style={[styles.input, { color: textColor }]}
+                placeholder="Subtipo (Mediterrâneo, Varroa, etc.)"
+                placeholderTextColor={secondaryTextColor}
                 value={productSubtype}
                 onChangeText={setProductSubtype}
               />
             </View>
             
             {/* Categoria */}
-            <TouchableOpacity style={styles.selectContainer} onPress={handleCategorySelect}>
-              <Text style={styles.selectLabel}>Categoria</Text>
+            <TouchableOpacity 
+              style={[styles.selectContainer, { borderBottomColor: borderColor }]} 
+              onPress={handleCategorySelect}
+            >
+              <Text style={[styles.selectLabel, { color: textColor }]}>Categoria</Text>
               <View style={styles.selectValue}>
-                <Text style={styles.selectValueText}>{categoryName}</Text>
-                <MaterialCommunityIcons name="chevron-down" size={24} color="#3B82F6" />
+                <Text style={[styles.selectValueText, { color: accentColor }]}>{categoryName}</Text>
+                <MaterialCommunityIcons name="chevron-down" size={24} color={accentColor} />
               </View>
             </TouchableOpacity>
             
-            {/* Subtipo (opcional) */}
-            <View style={styles.inputContainer}>
+            {/* Notas - opcionais */}
+            <View style={[styles.inputContainer, { borderBottomColor: borderColor }]}>
               <TextInput
-                style={styles.input}
-                placeholder="Subtipo (opcional)"
-                placeholderTextColor="#999999"
+                style={[styles.input, { color: textColor }]}
+                placeholder="Notas (opcional)"
+                placeholderTextColor={secondaryTextColor}
                 value={notes}
                 onChangeText={setNotes}
+                multiline
               />
             </View>
           </View>
           
-          {/* SEÇÃO: ESTADO E LOCALIZAÇÃO */}
-          <Text style={styles.sectionTitle}>ESTADO E LOCALIZAÇÃO</Text>
-          <View style={styles.formSection}>
-            {/* Estado */}
-            <TouchableOpacity style={styles.selectContainer} onPress={handleStatusSelect}>
-              <Text style={styles.selectLabel}>Estado</Text>
+          {/* SEÇÃO: LOCALIZAÇÃO */}
+          <Text style={[styles.sectionTitle, { color: secondaryTextColor }]}>LOCALIZAÇÃO</Text>
+          <View style={[styles.formSection, { backgroundColor: cardBackgroundColor }]}>
+            {/* Localização */}
+            <TouchableOpacity 
+              style={[styles.selectContainer, { borderBottomColor: borderColor }]} 
+              onPress={handleLocationSelect}
+            >
+              <Text style={[styles.selectLabel, { color: textColor }]}>Localização</Text>
               <View style={styles.selectValue}>
-                <Text style={styles.selectValueText}>{status}</Text>
-                <MaterialCommunityIcons name="chevron-down" size={24} color="#3B82F6" />
+                <Text style={[styles.selectValueText, { color: accentColor }]}>{location}</Text>
+                <MaterialCommunityIcons name="chevron-down" size={24} color={accentColor} />
               </View>
             </TouchableOpacity>
             
-            {/* Localização */}
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={styles.input}
-                placeholder="Localização"
-                placeholderTextColor="#999999"
-                value={location}
-                onChangeText={setLocation}
-              />
-            </View>
+            {/* Apiário - apenas para colmeias */}
+            {isHive && location !== 'Armazém' && (
+              <TouchableOpacity 
+                style={[styles.selectContainer, { borderBottomColor: borderColor }]} 
+                onPress={handleApiarySelect}
+              >
+                <Text style={[styles.selectLabel, { color: textColor }]}>Apiário</Text>
+                <View style={styles.selectValue}>
+                  <Text style={[styles.selectValueText, { color: accentColor }]}>{apiary || 'Selecionar'}</Text>
+                  <MaterialCommunityIcons name="chevron-down" size={24} color={accentColor} />
+                </View>
+              </TouchableOpacity>
+            )}
+            
+            {/* Status */}
+            <TouchableOpacity 
+              style={[styles.selectContainer, { borderBottomColor: borderColor }]} 
+              onPress={handleStatusSelect}
+            >
+              <Text style={[styles.selectLabel, { color: textColor }]}>Estado</Text>
+              <View style={styles.selectValue}>
+                <Text style={[styles.selectValueText, { color: accentColor }]}>{status}</Text>
+                <MaterialCommunityIcons name="chevron-down" size={24} color={accentColor} />
+              </View>
+            </TouchableOpacity>
           </View>
           
           {/* SEÇÃO: QUANTIDADE */}
-          <Text style={styles.sectionTitle}>QUANTIDADE</Text>
-          <View style={styles.formSection}>
+          <Text style={[styles.sectionTitle, { color: secondaryTextColor }]}>QUANTIDADE</Text>
+          <View style={[styles.formSection, { backgroundColor: cardBackgroundColor }]}>
             {/* Quantidade */}
-            <View style={styles.inputContainer}>
+            <View style={[styles.inputContainer, { borderBottomColor: borderColor }]}>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { color: textColor }]}
                 placeholder="Quantidade"
-                placeholderTextColor="#999999"
+                placeholderTextColor={secondaryTextColor}
                 value={quantity}
                 onChangeText={setQuantity}
                 keyboardType="numeric"
@@ -305,47 +500,50 @@ const AddProductScreen: React.FC = () => {
             </View>
             
             {/* Unidade */}
-            <TouchableOpacity style={styles.selectContainer} onPress={handleUnitSelect}>
-              <Text style={styles.selectLabel}>Unidade</Text>
+            <TouchableOpacity 
+              style={[styles.selectContainer, { borderBottomColor: borderColor }]} 
+              onPress={handleUnitSelect}
+            >
+              <Text style={[styles.selectLabel, { color: textColor }]}>Unidade</Text>
               <View style={styles.selectValue}>
-                <Text style={styles.selectValueText}>{unit}</Text>
-                <MaterialCommunityIcons name="chevron-down" size={24} color="#3B82F6" />
+                <Text style={[styles.selectValueText, { color: accentColor }]}>{unit}</Text>
+                <MaterialCommunityIcons name="chevron-down" size={24} color={accentColor} />
               </View>
             </TouchableOpacity>
-          </View>
-          
-          {/* SEÇÃO: INFORMAÇÕES ADICIONAIS */}
-          <Text style={styles.sectionTitle}>INFORMAÇÕES ADICIONAIS</Text>
-          <View style={styles.formSection}>
-            {/* Campanha */}
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={styles.input}
-                placeholder="Campanha (opcional)"
-                placeholderTextColor="#999999"
-                value={campaign}
-                onChangeText={setCampaign}
-              />
-            </View>
             
             {/* Alerta de estoque */}
-            <View style={styles.inputContainer}>
+            <View style={[styles.inputContainer, { borderBottomColor: borderColor }]}>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { color: textColor }]}
                 placeholder="Alerta de estoque mínimo (opcional)"
-                placeholderTextColor="#999999"
+                placeholderTextColor={secondaryTextColor}
                 value={stockAlert}
                 onChangeText={setStockAlert}
                 keyboardType="numeric"
               />
             </View>
+          </View>
+          
+          {/* SEÇÃO: INFORMAÇÕES ADICIONAIS */}
+          <Text style={[styles.sectionTitle, { color: secondaryTextColor }]}>INFORMAÇÕES ADICIONAIS</Text>
+          <View style={[styles.formSection, { backgroundColor: cardBackgroundColor }]}>
+            {/* Campanha */}
+            <View style={[styles.inputContainer, { borderBottomColor: borderColor }]}>
+              <TextInput
+                style={[styles.input, { color: textColor }]}
+                placeholder="Campanha (opcional)"
+                placeholderTextColor={secondaryTextColor}
+                value={campaign}
+                onChangeText={setCampaign}
+              />
+            </View>
             
             {/* Preço */}
-            <View style={styles.inputContainer}>
+            <View style={[styles.inputContainer, { borderBottomColor: borderColor }]}>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { color: textColor }]}
                 placeholder="Preço (opcional)"
-                placeholderTextColor="#999999"
+                placeholderTextColor={secondaryTextColor}
                 value={price}
                 onChangeText={setPrice}
                 keyboardType="numeric"
@@ -361,7 +559,6 @@ const AddProductScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000000',
   },
   keyboardAvoidingContainer: {
     flex: 1,
@@ -372,24 +569,20 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: scale(16),
     paddingVertical: scale(16),
-    backgroundColor: '#121212',
     borderBottomWidth: 1,
-    borderBottomColor: '#2A2A2A',
+    borderBottomColor: 'rgba(0,0,0,0.1)',
   },
   headerButton: {
     padding: scale(8),
   },
   headerTitle: {
-    color: '#FFFFFF',
     fontSize: scale(20),
     fontWeight: 'bold',
   },
   cancelButtonText: {
-    color: '#3B82F6',
     fontSize: scale(16),
   },
   saveButtonText: {
-    color: '#3B82F6',
     fontSize: scale(16),
     fontWeight: 'bold',
   },
@@ -398,25 +591,32 @@ const styles = StyleSheet.create({
     padding: scale(16),
   },
   sectionTitle: {
-    color: '#AAAAAA',
     fontSize: scale(14),
     marginBottom: scale(8),
+    marginTop: scale(16),
   },
   formSection: {
-    backgroundColor: '#121212',
     borderRadius: scale(12),
-    marginBottom: scale(24),
+    marginBottom: scale(16),
     overflow: 'hidden',
   },
   inputContainer: {
     borderBottomWidth: 1,
-    borderBottomColor: '#2A2A2A',
+    paddingHorizontal: scale(16),
+    paddingVertical: scale(12),
+  },
+  inputLabel: {
+    fontSize: scale(14),
+    marginBottom: scale(4),
   },
   input: {
-    color: '#FFFFFF',
     fontSize: scale(16),
-    paddingHorizontal: scale(16),
-    paddingVertical: scale(16),
+    paddingVertical: scale(4),
+  },
+  generatedIdText: {
+    fontSize: scale(16),
+    fontWeight: '500',
+    paddingVertical: scale(4),
   },
   selectContainer: {
     flexDirection: 'row',
@@ -425,10 +625,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale(16),
     paddingVertical: scale(16),
     borderBottomWidth: 1,
-    borderBottomColor: '#2A2A2A',
   },
   selectLabel: {
-    color: '#FFFFFF',
     fontSize: scale(16),
   },
   selectValue: {
@@ -436,7 +634,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   selectValueText: {
-    color: '#3B82F6',
     fontSize: scale(16),
     marginRight: scale(8),
   },

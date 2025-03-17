@@ -8,10 +8,27 @@ import { ProductCategory } from './models/category.types';
 
 export type MenuOption = {
   id: string;
-  name: string;
+  title: string;
   icon: string;
   screen: keyof RootStackParamList;
 };
+
+// Interface para Apiário
+export interface Apiary {
+  id: string;
+  name: string;
+  location: string;
+  coordinates?: string;
+  hiveCount: number;
+  createdAt: Date;
+  lastVisit?: Date;
+  notes?: string;
+  floraTypes?: string[];
+  estimatedProduction?: number;
+  owner?: string;
+  contact?: string;
+  imageUrl?: string;
+}
 
 // Define os parâmetros de cada rota
 export type RootStackParamList = {
@@ -26,6 +43,13 @@ export type RootStackParamList = {
   CategoryDetail: { categoryId: string };
   CategoryProducts: { category: ProductCategory };
   MainTabs: undefined;
+
+  // Novas rotas para apiários
+  AddApiary: undefined;
+  ApiaryDetails: { apiaryId: string };
+  EditApiary: { apiaryId: string };
+  AddApiaryTask: { apiaryId: string };
+  AddApiaryEquipment: { apiaryId: string };
 };
 
 // Define os parâmetros para as tabs
