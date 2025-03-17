@@ -26,7 +26,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
   animationDelay = 0,
   animationType = 'slide'
 }) => {
-  const { colors, sizing, getShadow } = useTheme();
+  const { colors, sizing, getShadow, isDark } = useTheme();
 
   // Função para mapear ícones consistentes para todas as categorias
   const getBetterIcon = () => {
@@ -66,7 +66,19 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
     return [baseColor, `${baseColor}88`];
   };
 
-  // Definir cores e estilos baseados no tema atual
+  // Obter gradientes do contexto de tema baseado no tema atual com fallback seguro
+  const getCardGradient = () => {
+    const defaultDark = ['#302403', '#1D1705']; // Marrom escuro fallback
+    const defaultSecondary = ['#8B4513', '#795548', '#5D2E0D']; // Marrom fallback
+    
+    if (colors.gradients) {
+      return isDark 
+        ? (colors.gradients.card?.dark || defaultDark)
+        : (colors.gradients.secondary || defaultSecondary);
+    }
+    return isDark ? defaultDark : defaultSecondary;
+  };
+
   return (
     <AnimatedCard
       style={[
@@ -77,9 +89,10 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
       animationDelay={animationDelay}
       animationType={animationType}
       activeOpacity={0.7}
+      useGradient={false}
     >
       <LinearGradient
-        colors={['#151515', '#0d2944']} // Gradiente escuro para azul mais visível como na imagem
+        colors={getCardGradient()}
         style={styles.cardContent}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}
@@ -87,9 +100,14 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
         {/* Cabeçalho do card com ícone e números */}
         <View style={styles.cardHeader}>
           {/* Ícone da categoria */}
-          <View style={[styles.iconCircle, { backgroundColor: category.color }]}>
+          <LinearGradient
+            colors={getGradientColors(category.color)}
+            style={styles.iconCircle}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+          >
             {getBetterIcon()}
-          </View>
+          </LinearGradient>
           
           {/* Informação de quantidade */}
           <View style={styles.quantityInfo}>

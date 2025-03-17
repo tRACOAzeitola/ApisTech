@@ -7,6 +7,7 @@ import {
   GestureResponderEvent,
   Platform,
 } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
 
 interface AnimatedCardProps {
@@ -16,6 +17,7 @@ interface AnimatedCardProps {
   animationDelay?: number;
   animationType?: 'fade' | 'slide' | 'scale' | 'none';
   activeOpacity?: number;
+  useGradient?: boolean;
 }
 
 /**
@@ -29,8 +31,9 @@ const AnimatedCard: React.FC<AnimatedCardProps> = ({
   animationDelay = 0,
   animationType = 'fade',
   activeOpacity = 0.7,
+  useGradient = false,
 }) => {
-  const { isDark, getShadow } = useTheme();
+  const { isDark, getShadow, colors } = useTheme();
   
   // Ref para a animação
   const animatedValue = useRef(new Animated.Value(0)).current;
@@ -59,7 +62,7 @@ const AnimatedCard: React.FC<AnimatedCardProps> = ({
   }, [animatedValue, animationDelay, animationType]);
 
   // Configurar as animações iniciais com base no tipo
-  let initialTransform = {};
+  let initialTransform: any = {};
   switch (animationType) {
     case 'fade':
       initialTransform = { opacity: animatedValue };
@@ -92,7 +95,7 @@ const AnimatedCard: React.FC<AnimatedCardProps> = ({
       break;
     case 'none':
     default:
-      initialTransform = {};
+      initialTransform = { transform: [] };
       break;
   }
 
@@ -115,11 +118,31 @@ const AnimatedCard: React.FC<AnimatedCardProps> = ({
     }).start();
   };
 
+  // Definir os gradientes com base no tema com fallback seguro
+  const getGradientColors = () => {
+    const defaultLight = ['#FFFDF7', '#FFF8E1'];
+    const defaultDark = ['#302403', '#1D1705'];
+    
+    if (colors.gradients?.card) {
+      return isDark 
+        ? colors.gradients.card.dark || defaultDark
+        : colors.gradients.card.light || defaultLight;
+    }
+    return isDark ? defaultDark : defaultLight;
+  };
+  
+  // Obter cor de fundo de card com fallback
+  const getCardBackgroundColor = () => {
+    if (isDark) {
+      return colors.cardBackground?.dark || '#302403';
+    }
+    return colors.cardBackground?.light || '#FFFDF7';
+  };
+
   return (
     <Animated.View
       style={[
         styles.container,
-        isDark ? styles.containerDark : styles.containerLight,
         getShadow(2),
         style,
         initialTransform,
@@ -138,7 +161,25 @@ const AnimatedCard: React.FC<AnimatedCardProps> = ({
         activeOpacity={activeOpacity}
         style={styles.touchable}
       >
-        {children}
+        {useGradient ? (
+          <LinearGradient
+            colors={getGradientColors()}
+            style={styles.gradientContainer}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+          >
+            {children}
+          </LinearGradient>
+        ) : (
+          <Animated.View 
+            style={[
+              styles.contentContainer, 
+              { backgroundColor: getCardBackgroundColor() }
+            ]}
+          >
+            {children}
+          </Animated.View>
+        )}
       </TouchableOpacity>
     </Animated.View>
   );
@@ -149,16 +190,21 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: 'hidden',
   },
-  containerLight: {
-    backgroundColor: '#FFFFFF',
-  },
-  containerDark: {
-    backgroundColor: '#151515',
-  },
   touchable: {
     width: '100%',
     height: '100%',
   },
+  gradientContainer: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
+  contentContainer: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  }
 });
 
 export default AnimatedCard;
+

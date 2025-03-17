@@ -2,77 +2,90 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useColorScheme, Platform, Appearance } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Definição de cores conforme a imagem de referência (modo escuro)
+// Definição de cores para tema inspirado em apicultura
 const colors = {
   // Cores primárias
   primary: {
-    light: '#FF3B30', // Vermelho para tema claro
-    dark: '#FF3B30',  // Vermelho para tema escuro (como na imagem)
+    light: '#FFC107', // Amarelo mel para tema claro
+    dark: '#FFC107',  // Amarelo mel para tema escuro
   },
   accent: {
-    light: '#007AFF', // Azul para acentos no tema claro
-    dark: '#007AFF',  // Azul para acentos no tema escuro
+    light: '#8B4513', // Marrom madeira para acentos no tema claro
+    dark: '#A05629',  // Marrom madeira mais claro para acentos no tema escuro
   },
   // Cores de fundo
   background: {
-    light: Platform.OS === 'ios' ? '#F2F2F7' : '#FAFAFA',
-    dark: '#000000', // Preto puro como na imagem
+    light: '#FFF8E1', // Creme claro (cera de abelha) para fundo no tema claro
+    dark: '#1D1705',  // Marrom muito escuro para fundo no tema escuro
   },
   // Cor de cartões/superfícies
   surface: {
-    light: Platform.OS === 'ios' ? '#FFFFFF' : '#FFFFFF',
-    dark: '#000000', // Cartões pretos como na imagem
+    light: '#FFFDF7', // Creme muito claro para superfícies no tema claro
+    dark: '#261C06',  // Marrom meio escuro para superfícies no tema escuro
   },
   cardBackground: {
-    light: '#FFFFFF',
-    dark: '#151515', // Cinza muito escuro para os cartões
+    light: '#FFFDF7', // Creme muito claro para cartões no tema claro
+    dark: '#302403',  // Marrom escuro para cartões no tema escuro
   },
   // Cores para interruptores (toggle switches)
   switch: {
     activeTrack: {
-      light: '#007AFF',
-      dark: '#007AFF',
+      light: '#FFC107', // Amarelo mel para trilha ativa no tema claro
+      dark: '#FFC107',  // Amarelo mel para trilha ativa no tema escuro
     },
     inactiveTrack: {
-      light: 'rgba(0, 0, 0, 0.1)',
-      dark: 'rgba(255, 255, 255, 0.2)',
+      light: 'rgba(139, 69, 19, 0.3)', // Marrom transparente para trilha inativa no tema claro
+      dark: 'rgba(255, 193, 7, 0.3)',  // Amarelo transparente para trilha inativa no tema escuro
     },
     thumb: {
-      light: '#FFFFFF',
-      dark: '#FFFFFF',
+      light: '#FFFFFF', // Branco para o polegar no tema claro
+      dark: '#FFF8E1',  // Creme claro para o polegar no tema escuro
     },
   },
   // Textos
   text: {
     primary: {
-      light: Platform.OS === 'ios' ? '#000000' : '#212121',
-      dark: '#FFFFFF', // Branco para texto principal
+      light: '#5D2E0D', // Marrom escuro para texto principal no tema claro
+      dark: '#FFF8E1',  // Creme claro para texto principal no tema escuro
     },
     secondary: {
-      light: Platform.OS === 'ios' ? '#8E8E93' : '#757575',
-      dark: '#999999', // Cinza claro para texto secundário
+      light: '#8B4513', // Marrom para texto secundário no tema claro
+      dark: '#FFE082',  // Amarelo claro para texto secundário no tema escuro
     },
     accent: {
-      light: '#007AFF',
-      dark: '#007AFF', // Azul para texto de ação
+      light: '#E6A800', // Amarelo escuro para texto de destaque no tema claro
+      dark: '#FFC107',  // Amarelo mel para texto de destaque no tema escuro
     },
   },
   // Bordas
   border: {
-    light: Platform.OS === 'ios' ? 'rgba(0, 0, 0, 0.1)' : 'rgba(0, 0, 0, 0.12)',
-    dark: 'rgba(255, 255, 255, 0.1)', // Borda sutil
+    light: 'rgba(139, 69, 19, 0.2)', // Marrom transparente para tema claro
+    dark: 'rgba(255, 193, 7, 0.2)',  // Amarelo transparente para tema escuro
   },
-  // Categorias específicas para o sistema (cores vibrantes em fundo escuro)
+  // Categorias específicas para o sistema (cores inspiradas em apicultura)
   categoryColors: [
-    '#FCD34D', // Amarelo para Mel (como na imagem)
-    '#60A5FA', // Azul para Material de Colmeia (como na imagem)
-    '#FC444D', // Vermelho para Produtos Veterinários 
-    '#A3A3A3', // Cinza para Embalamento
-    '#4ADE80', // Verde para Material de Visita
-    '#93C5FD', // Azul claro para Equipamento de Melaria
-    '#C084FC', // Roxo para Ferramentas Apícolas
-    '#FDBA74', // Laranja para Cera
+    '#FFC107', // Amarelo mel
+    '#8B4513', // Marrom madeira
+    '#0288D1', // Azul (céu)
+    '#FFF8E1', // Creme claro (cera de abelha)
+    '#8BC34A', // Verde oliva (plantas)
+    '#FFB300', // Âmbar (mel mais escuro)
+    '#795548', // Marrom mais escuro (madeira envelhecida)
+    '#FFE082', // Amarelo claro (mel claro)
   ],
+  // Gradientes para componentes
+  gradients: {
+    primary: ['#FFC107', '#FFB300', '#FFA000'], // Gradiente de amarelo mel
+    secondary: ['#8B4513', '#795548', '#5D2E0D'], // Gradiente de marrom
+    card: {
+      light: ['#FFFDF7', '#FFF8E1'], // Gradiente claro para cartões no tema claro
+      dark: ['#302403', '#1D1705'], // Gradiente escuro para cartões no tema escuro
+    },
+    header: {
+      light: ['#FFC107', '#FFB300'], // Gradiente amarelo para cabeçalhos no tema claro
+      dark: ['#5D2E0D', '#3E1F08'], // Gradiente marrom para cabeçalhos no tema escuro
+    }
+  },
 };
 
 // Diferentes tamanhos para os elementos de UI conforme plataforma
@@ -230,6 +243,7 @@ export const ThemeProvider: React.FC<{children: React.ReactNode}> = ({ children 
       border: colors.border[theme],
       categoryColors: colors.categoryColors,
       switch: colors.switch, // Adicionar as cores do switch
+      gradients: colors.gradients, // Adicionar os gradientes
     },
     sizing,
     toggleTheme,

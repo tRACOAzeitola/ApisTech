@@ -27,6 +27,18 @@ const Menu: React.FC<MenuProps> = ({ visible, onClose, onSelectOption }) => {
   const [scaleAnim] = React.useState(new Animated.Value(0.9));
   const [opacityAnim] = React.useState(new Animated.Value(0));
   
+  // Definir cores de gradiente padrão para o caso de os gradientes não estarem disponíveis
+  const defaultGradientDark = ['#302403', '#1D1705']; // Cores de fallback para tema escuro
+  const defaultGradientLight = ['#FFC107', '#FFB300']; // Cores de fallback para tema claro
+  
+  // Obter gradientes de forma segura, com fallback para valores padrão
+  const getHeaderGradient = () => {
+    if (colors.gradients && colors.gradients.header) {
+      return isDark ? colors.gradients.header.dark : colors.gradients.header.light;
+    }
+    return isDark ? defaultGradientDark : defaultGradientLight;
+  };
+  
   React.useEffect(() => {
     if (visible) {
       Animated.parallel([
@@ -47,6 +59,7 @@ const Menu: React.FC<MenuProps> = ({ visible, onClose, onSelectOption }) => {
       opacityAnim.setValue(0);
     }
   }, [visible, scaleAnim, opacityAnim]);
+  
   const renderIcon = (iconName: string) => {
     // Mapeamento para melhores ícones do FontAwesome5
     const iconMapping: Record<string, string> = {
@@ -61,7 +74,7 @@ const Menu: React.FC<MenuProps> = ({ visible, onClose, onSelectOption }) => {
       <FontAwesome5 
         name={iconName5} 
         size={18} 
-        color={colors.primary}
+        color={isDark ? '#FFC107' : '#8B4513'} // Amarelo mel ou marrom madeira
         solid 
       />
     );
@@ -69,19 +82,51 @@ const Menu: React.FC<MenuProps> = ({ visible, onClose, onSelectOption }) => {
 
   const renderItem = ({ item }: { item: MenuOption }) => (
     <TouchableOpacity 
-      style={[styles.menuItem, { borderBottomColor: colors.border }]} 
+      style={[
+        styles.menuItem, 
+        { 
+          borderBottomColor: isDark 
+            ? (colors.border?.dark || 'rgba(255, 193, 7, 0.2)') 
+            : (colors.border?.light || 'rgba(139, 69, 19, 0.2)')
+        }
+      ]} 
       onPress={() => {
         onSelectOption(item);
         onClose();
       }}
       activeOpacity={0.7}
     >
-      <View style={[styles.iconContainer, { backgroundColor: isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)' }]}>
+      <View style={[
+        styles.iconContainer, 
+        { 
+          backgroundColor: isDark 
+            ? 'rgba(255, 193, 7, 0.1)' // Amarelo mel com transparência
+            : 'rgba(139, 69, 19, 0.1)' // Marrom madeira com transparência
+        }
+      ]}>
         {renderIcon(item.icon)}
       </View>
-      <Text style={[styles.menuItemText, { color: colors.text.primary }]}>{item.name}</Text>
+      <Text style={[
+        styles.menuItemText, 
+        { 
+          color: isDark 
+            ? (colors.text?.dark?.primary || '#FFF8E1')  // Fallback para creme claro
+            : (colors.text?.light?.primary || '#5D2E0D') // Fallback para marrom escuro
+        }
+      ]}>
+        {item.title}
+      </Text>
     </TouchableOpacity>
   );
+
+  // Definir cores de fundo com fallback seguro
+  const getBackgroundColor = () => {
+    if (isDark) {
+      return colors.cardBackground?.dark || '#302403'; // Fallback para marrom escuro
+    } else {
+      return colors.cardBackground?.light || '#FFFDF7'; // Fallback para creme muito claro
+    }
+  };
 
   return (
     <Modal
@@ -91,7 +136,7 @@ const Menu: React.FC<MenuProps> = ({ visible, onClose, onSelectOption }) => {
       onRequestClose={onClose}
     >
       <TouchableOpacity 
-        style={[styles.modalOverlay, { backgroundColor: isDark ? 'rgba(0,0,0,0.6)' : 'rgba(0,0,0,0.3)' }]} 
+        style={[styles.modalOverlay, { backgroundColor: colors.overlay || 'rgba(29, 23, 5, 0.6)' }]} 
         activeOpacity={1} 
         onPress={onClose}
       >
@@ -99,7 +144,7 @@ const Menu: React.FC<MenuProps> = ({ visible, onClose, onSelectOption }) => {
           style={[
             styles.menuContainer, 
             { 
-              backgroundColor: colors.surface,
+              backgroundColor: getBackgroundColor(),
               borderRadius: sizing.borderRadius,
               ...getShadow(5),
               transform: [{ scale: scaleAnim }],
@@ -108,12 +153,30 @@ const Menu: React.FC<MenuProps> = ({ visible, onClose, onSelectOption }) => {
           ]}
         >
           <LinearGradient
-            colors={isDark ? ['#323232', colors.surface] : ['#fafafa', colors.surface]}
+            colors={getHeaderGradient()}
             style={styles.menuHeader}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
           >
-            <Text style={[styles.menuTitle, { color: colors.text.primary }]}>Menu</Text>
+            <Text style={[
+              styles.menuTitle, 
+              { 
+                color: isDark 
+                  ? (colors.text?.dark?.primary || '#FFF8E1')  // Fallback para creme claro
+                  : (colors.text?.light?.primary || '#5D2E0D') // Fallback para marrom escuro
+              }
+            ]}>
+              Menu
+            </Text>
             <TouchableOpacity onPress={onClose} style={styles.closeButton}>
-              <FontAwesome5 name="times" size={16} color={colors.text.secondary} />
+              <FontAwesome5 
+                name="times" 
+                size={16} 
+                color={isDark 
+                  ? (colors.text?.dark?.secondary || '#FFE082')  // Fallback para amarelo claro
+                  : (colors.text?.light?.secondary || '#8B4513') // Fallback para marrom
+                } 
+              />
             </TouchableOpacity>
           </LinearGradient>
           
@@ -164,7 +227,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.05)',
   },
   iconContainer: {
     width: 36,
