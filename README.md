@@ -1,22 +1,24 @@
 # Inventario - Aplicação de Gestão de Inventário para Apicultores
 
-Uma aplicação móvel moderna desenvolvida com React Native para ajudar apicultores a gerir o seu inventário de forma eficiente.
+Uma aplicação móvel moderna desenvolvida com React Native para ajudar apicultores a gerir o seu inventário de forma eficiente e controlar seus apiários.
 
 ![Inventario App](https://via.placeholder.com/800x400.png?text=Inventario+App)
 
 ## 📱 Sobre o Projeto
 
-Inventario é uma aplicação de gestão de inventário específica para apicultores, permitindo o controlo completo de produtos, equipamentos e materiais relacionados com a apicultura. Com uma interface intuitiva e funcionalidades avançadas, a aplicação ajuda a otimizar a gestão de stocks, rastrear movimentações e alertar sobre níveis baixos de produtos essenciais.
+Inventario é uma aplicação de gestão de inventário e apiários específica para apicultores, permitindo o controlo completo de produtos, equipamentos, colmeias e materiais relacionados com a apicultura. Com uma interface intuitiva e funcionalidades avançadas, a aplicação ajuda a otimizar a gestão de stocks, rastrear apiários e seus equipamentos, monitorar tarefas e alertar sobre níveis baixos de produtos essenciais.
 
 ### Principais Funcionalidades
 
 - 🏠 **Ecrã inicial intuitivo** com acesso rápido a Inventário e Apiários
-- 🐝 **Gestão de apiários** para controlo de equipamentos por local
+- 🐝 **Gestão completa de apiários** com monitoramento de colmeias, equipamentos e tarefas
 - 📊 **Painel interativo redesenhado** com resumo de stock e gráficos por categoria
-- 🔍 **Pesquisa avançada** para encontrar produtos rapidamente
+- 🔍 **Pesquisa avançada** para encontrar produtos e apiários rapidamente
 - 📋 **Categorização inteligente** de produtos relacionados com a apicultura
 - 📉 **Alertas de stock reduzido** para evitar falta de itens essenciais
 - 📝 **Histórico de movimentações** para rastreamento completo
+- 🐝 **Informações detalhadas dos apiários** incluindo localização, flora predominante e equipamentos
+- 📋 **Gestão de tarefas por apiário** para planejamento eficiente
 - 📄 **Geração de relatórios em PDF** para inventário, mel e produtos em baixo estoque
 - ➕ **Interface melhorada para adição de produtos** com organização por seções
 - 🔄 **Sincronização com Firebase** para backup e acesso em múltiplos dispositivos
@@ -64,8 +66,10 @@ inventario/
 │   ├── navigation/            # Configuração de navegação
 │   │   └── AppNavigator.tsx
 │   ├── screens/               # Ecrãs da aplicação
+│   │   ├── AddApiaryScreen.tsx        # Nova tela de adição de apiário
 │   │   ├── AddProductScreen.tsx
-│   │   ├── ApiariesScreen.tsx
+│   │   ├── ApiariesScreen.tsx         # Tela principal de apiários
+│   │   ├── ApiaryDetailsScreen.tsx    # Nova tela de detalhes do apiário
 │   │   ├── CategoryProductsScreen.tsx
 │   │   ├── DashboardScreen.tsx
 │   │   ├── HistoryScreen.tsx
@@ -79,6 +83,8 @@ inventario/
 │   │   ├── global.d.ts
 │   │   ├── index.ts
 │   │   ├── navigation.types.ts
+│   │   ├── navigation/
+│   │   │   └── routes.types.ts
 │   │   ├── models/
 │   │   │   ├── product.types.ts
 │   │   │   └── category.types.ts
@@ -152,8 +158,14 @@ Menu principal que dá acesso às duas áreas principais da aplicação: Invent�
 ### Inventário
 Ecrã de gestão com categorias de produtos e acesso rápido às funcionalidades de stock.
 
-### Apiários
-Ecrã dedicado à gestão de apiários, permitindo controlar equipamento por local.
+### Apiários (Novo Módulo)
+Ecrã dedicado à gestão de apiários, permitindo visualizar, adicionar e gerenciar apiários. Inclui funcionalidades como:
+- Lista de apiários com informações vitais
+- Filtro de pesquisa para encontrar apiários específicos
+- Estatísticas gerais do total de apiários e colmeias
+- Detalhes de cada apiário incluindo localização, flora predominante e contatos
+- Gerenciamento de equipamentos por apiário
+- Planejamento de tarefas específicas para cada apiário
 
 ### Painel (Redesenhado)
 Visão geral com gráficos de barras por categoria, alertas de estoque baixo e opções para gerar diferentes tipos de relatórios em PDF.
@@ -172,7 +184,7 @@ Alerta de produtos com stock abaixo do limite estabelecido.
 
 ## 📊 Relatórios em PDF
 
-A nova versão inclui a capacidade de gerar relatórios detalhados em PDF:
+A aplicação inclui a capacidade de gerar relatórios detalhados em PDF:
 
 - **Relatório Completo**: Inventário detalhado com todos os produtos e estatísticas
 - **Relatório de Mel**: Focado no estoque de mel com análises específicas
@@ -215,7 +227,18 @@ Contribuições são bem-vindas! Sente-te à vontade para abrir issues ou enviar
 
 ## 📝 Changelog
 
-### Versão 1.2.0 (Atual)
+### Versão 1.3.0 (Atual)
+- Implementado novo módulo de gestão de apiários com funcionalidades completas
+- Adicionada tela de visualização de lista de apiários com estatísticas gerais
+- Adicionada tela de detalhes do apiário com informações completas
+- Adicionada tela de cadastro de novos apiários
+- Implementada gestão de equipamentos por apiário
+- Implementado sistema de tarefas para cada apiário
+- Adicionado componente ScreenLayout aprimorado com suporte para botões à direita
+- Corrigidas questões de navegação e tipagem para melhor experiência de desenvolvimento
+- Melhorias na interface de usuário para temas claro e escuro
+
+### Versão 1.2.0
 - Redesenho completo do Dashboard com visualização de gráficos por categoria
 - Interface de Adicionar Produto remodelada e organizada em seções
 - Adicionada funcionalidade de geração de relatórios em PDF
