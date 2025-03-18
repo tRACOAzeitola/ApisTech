@@ -143,7 +143,7 @@ const HomeScreen: React.FC = () => {
         navigation.navigate('LowStock');
         break;
       case 'MainTabs':
-        navigation.navigate('MainTabs');
+        navigation.navigate('Main');
         break;
       case 'CategoryProducts':
         // Essa navegação requer um parâmetro de categoria, que deve ser fornecido

@@ -47,8 +47,8 @@ interface Apiary {
 const MOCK_APIARIES: Apiary[] = [
   {
     id: '1',
-    name: 'Mediterraneo',
-    location: 'Meimoa, Benquerença',
+    name: 'Apiário Sul',
+    location: 'Serra da Estrela',
     hiveCount: 12,
     createdAt: new Date('2024-01-15'),
     lastVisit: new Date('2024-05-10'),
@@ -59,8 +59,8 @@ const MOCK_APIARIES: Apiary[] = [
   },
   {
     id: '2',
-    name: 'Bosque',
-    location: 'Meimao',
+    name: 'Apiário Norte',
+    location: 'Guarda',
     hiveCount: 8,
     createdAt: new Date('2023-11-03'),
     lastVisit: new Date('2024-04-22'),
@@ -114,11 +114,11 @@ const ApiaryItem: React.FC<ApiaryItemProps> = ({ apiary, onPress }) => {
         <Text style={[styles.apiaryName, { color: colors.text.primary }]}>
           {apiary.name}
         </Text>
-        <View style={[styles.hivesContainer, { backgroundColor: 'rgba(10, 132, 255, 0.1)' }]}>
+        <View style={styles.hivesContainer}>
           <MaterialCommunityIcons 
             name="hexagon-multiple" 
             size={16} 
-            color={isDark ? '#0A84FF' : '#007AFF'} 
+            color={isDark ? '#FFAB00' : '#F57C00'} 
           />
           <Text style={[styles.hivesCount, { color: colors.text.secondary }]}>
             {apiary.hiveCount}
@@ -234,12 +234,12 @@ const ApiariesScreen: React.FC = () => {
 
   // Updated status color function
   const getStatusColor = (lastVisit?: Date): string => {
-    if (!lastVisit) return '#8E8E93'; // Cinza para nunca visitado
+    if (!lastVisit) return '#808080'; // Cinza para nunca visitado
     
     const daysElapsed = Math.floor((new Date().getTime() - lastVisit.getTime()) / (1000 * 3600 * 24));
     
-    if (daysElapsed <= 15) return '#4CD964'; // Verde: recente 
-    if (daysElapsed <= 30) return '#007AFF'; // Azul: dentro de um mês
+    if (daysElapsed <= 15) return '#4CAF50'; // Verde: recente 
+    if (daysElapsed <= 30) return '#007AFF'; // Azul: dentro de um mês (was yellow)
     return '#FF3B30'; // Vermelho: mais de um mês
   };
 
@@ -272,7 +272,7 @@ const ApiariesScreen: React.FC = () => {
             {/* Colmeias */}
             <View style={styles.detailItem}>
               <View style={styles.detailIconContainer}>
-                <FontAwesome5 name="home" size={16} color="#007AFF" />
+                <FontAwesome5 name="home" size={16} color="#FFA000" />
               </View>
               <Text style={[styles.detailValue, { color: textColor }]}>{item.hiveCount}</Text>
               <Text style={[styles.detailLabel, { color: secondaryTextColor }]}>Colmeias</Text>

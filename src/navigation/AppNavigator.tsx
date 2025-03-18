@@ -17,6 +17,9 @@ import ApiaryDetailsScreen from '../screens/ApiaryDetailsScreen';
 
 import { RootStackParamList } from '../types';
 
+import TransferProductScreen from '../screens/TransferProductScreen';
+import TransferEquipmentScreen from '../screens/TransferEquipmentScreen';
+
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 const AppNavigator = () => {
@@ -42,6 +45,12 @@ const AppNavigator = () => {
         {/* Novas telas para apiários */}
         <Stack.Screen name="AddApiary" component={AddApiaryScreen} />
         <Stack.Screen name="ApiaryDetails" component={ApiaryDetailsScreen} />
+        
+        {/* Nova tela de transferência */}
+        <Stack.Screen name="TransferProduct" component={TransferProductScreen} />
+        
+        {/* Nova tela de transferência de equipamentos */}
+        <Stack.Screen name="TransferEquipment" component={TransferEquipmentScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

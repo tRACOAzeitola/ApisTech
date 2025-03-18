@@ -27,6 +27,7 @@ interface Apiary {
   name: string;
   location: string;
   hiveCount: number;
+  superCount?: number;
   createdAt: Date;
   lastVisit?: Date;
   notes?: string;
@@ -35,6 +36,7 @@ interface Apiary {
   owner?: string;
   contact?: string;
   imageUrl?: string;
+  coordinates?: string;
 }
 
 // Interface para Equipment
@@ -46,12 +48,25 @@ interface Equipment {
   notes?: string;
 }
 
+// Add missing TransferHistory interface
+interface TransferHistory {
+  id: string;
+  productId: string;
+  productName: string;
+  quantity: number;
+  fromLocation: string;
+  toLocation: string;
+  date: Date;
+  notes?: string;
+}
+
 // Dados de exemplo para um apiário
 const MOCK_APIARY: Apiary = {
   id: '1',
   name: 'Apiário Sul',
   location: 'Serra da Estrela',
   hiveCount: 12,
+  superCount: 24,
   createdAt: new Date('2024-01-15'),
   lastVisit: new Date('2024-05-10'),
   floraTypes: ['Eucalipto', 'Silvestre'],
@@ -79,6 +94,11 @@ const ApiaryDetailsScreen: React.FC = () => {
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'info' | 'equipment' | 'tasks'>('info');
+  const [transferHistory, setTransferHistory] = useState<TransferHistory[]>([]);
+  const [apiaryEquipment, setApiaryEquipment] = useState({
+    hives: 0,  // Colmeias (COL-COL)
+    supers: 0  // Alças (COL-ALC)
+  });
   
   // Carregar dados do apiário
   useEffect(() => {
@@ -88,6 +108,10 @@ const ApiaryDetailsScreen: React.FC = () => {
         setTimeout(() => {
           setApiary(MOCK_APIARY);
           setEquipment(MOCK_EQUIPMENT);
+          setApiaryEquipment({
+            hives: MOCK_APIARY?.hiveCount || 0,
+            supers: MOCK_APIARY?.superCount || 0
+          });
           setLoading(false);
         }, 1000);
       } catch (error) {
@@ -99,6 +123,46 @@ const ApiaryDetailsScreen: React.FC = () => {
 
     loadApiary();
   }, [route.params?.apiaryId]);
+
+  // Carregar histórico quando a tela é montada
+  useEffect(() => {
+    // Na implementação real, você buscaria do banco de dados
+    // Aqui estamos apenas simulando com dados estáticos
+    const mockHistory = [
+      {
+        id: '1',
+        productId: 'COL-COL',
+        productName: 'Colmeias',
+        quantity: 5,
+        fromLocation: 'Armazém',
+        toLocation: apiary?.name || 'Apiário',
+        date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 dias atrás
+        notes: 'Instalação inicial',
+      },
+      {
+        id: '2',
+        productId: 'COL-ALC',
+        productName: 'Alças',
+        quantity: 10,
+        fromLocation: 'Armazém',
+        toLocation: apiary?.name || 'Apiário',
+        date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 dias atrás
+        notes: 'Preparação para produção',
+      },
+      {
+        id: '3',
+        productId: 'COL-COL',
+        productName: 'Colmeias',
+        quantity: 2,
+        fromLocation: apiary?.name || 'Apiário',
+        toLocation: 'Armazém',
+        date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 dias atrás
+        notes: 'Manutenção necessária',
+      },
+    ];
+    
+    setTransferHistory(mockHistory);
+  }, [apiary?.name]);
 
   // Formatação de data
   const formatDate = (date?: Date) => {
@@ -195,6 +259,180 @@ const ApiaryDetailsScreen: React.FC = () => {
       </TouchableOpacity>
     </View>
   );
+
+  const renderApiarySections = () => (
+    <View style={styles.sections}>
+      {/* Seção existente sobre colmeias */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Colmeias</Text>
+        <Text style={styles.sectionValue}>{apiary?.hiveCount || 0}</Text>
+        <View style={styles.sectionActions}>
+          <TouchableOpacity
+            style={styles.sectionButton}
+            onPress={handleAddEquipment}
+          >
+            <Text style={styles.sectionButtonText}>Adicionar</Text>
+          </TouchableOpacity>
+          
+          {/* Novo botão para retornar colmeias ao armazém */}
+          <TouchableOpacity
+            style={[styles.sectionButton, styles.returnButton]}
+            onPress={handleReturnToWarehouse}
+          >
+            <Text style={styles.sectionButtonText}>Retornar ao Armazém</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+      
+      {/* ... outras seções existentes ... */}
+    </View>
+  );
+
+  // Nova função para lidar com retorno ao armazém
+  const handleReturnToWarehouse = () => {
+    // Mostrar uma lista dos itens do apiário e permitir seleção para retorno
+    navigation.navigate('ApiaryInventory', {
+      apiaryId: apiary?.id,
+      apiaryName: apiary?.name,
+      mode: 'return'
+    });
+  };
+
+  // Adicionar seção de histórico de transferências
+  const renderTransferHistory = () => (
+    <View style={styles.historySection}>
+      <Text style={styles.historyTitle}>Histórico de Transferências</Text>
+      
+      {transferHistory.length === 0 ? (
+        <Text style={styles.noHistoryText}>Sem registros de transferências</Text>
+      ) : (
+        transferHistory.map(transfer => (
+          <View key={transfer.id} style={styles.historyItem}>
+            <View style={styles.historyHeader}>
+              <View style={styles.productTypeTag}>
+                <FontAwesome5 
+                  name={transfer.productId === 'COL-COL' ? 'home' : 'layer-group'} 
+                  size={12} 
+                  color="#FFFFFF" 
+                />
+                <Text style={styles.productTypeText}>
+                  {transfer.productName}
+                </Text>
+              </View>
+              <Text style={styles.transferDate}>
+                {transfer.date.toLocaleDateString()}
+              </Text>
+            </View>
+            
+            <View style={styles.transferFlow}>
+              <Text style={styles.locationText}>{transfer.fromLocation}</Text>
+              <FontAwesome5 
+                name="arrow-right" 
+                size={12} 
+                color="#999999" 
+                style={styles.arrowIcon} 
+              />
+              <Text style={styles.locationText}>{transfer.toLocation}</Text>
+            </View>
+            
+            <View style={styles.transferDetails}>
+              <Text style={styles.quantityText}>
+                {transfer.quantity} unidades
+              </Text>
+              {transfer.notes && (
+                <Text style={styles.notesText}>
+                  Notas: {transfer.notes}
+                </Text>
+              )}
+            </View>
+          </View>
+        ))
+      )}
+    </View>
+  );
+
+  // Criar uma nova função para renderizar a seção de equipamentos
+  const renderEquipmentSection = () => (
+    <View style={styles.sectionContainer}>
+      <Text style={styles.sectionTitle}>Equipamentos</Text>
+      
+      <View style={styles.equipmentContainer}>
+        {/* Colmeias */}
+        <View style={styles.equipmentRow}>
+          <View style={styles.equipmentNameContainer}>
+            <FontAwesome5 name="home" size={18} color="#FFC107" solid />
+            <Text style={styles.equipmentName}>Colmeias</Text>
+            <Text style={styles.equipmentSku}>(COL-COL)</Text>
+          </View>
+          
+          <Text style={styles.equipmentCount}>{apiaryEquipment.hives}</Text>
+          
+          <View style={styles.equipmentActions}>
+            <TouchableOpacity
+              style={[styles.equipmentButton, styles.addButton]}
+              onPress={() => handleEquipmentTransfer('hive', 'add')}
+            >
+              <FontAwesome5 name="plus" size={12} color="#FFFFFF" />
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={[styles.equipmentButton, styles.removeButton]}
+              onPress={() => handleEquipmentTransfer('hive', 'return')}
+              disabled={apiaryEquipment.hives <= 0}
+            >
+              <FontAwesome5 name="minus" size={12} color="#FFFFFF" />
+            </TouchableOpacity>
+          </View>
+        </View>
+        
+        {/* Alças */}
+        <View style={styles.equipmentRow}>
+          <View style={styles.equipmentNameContainer}>
+            <FontAwesome5 name="layer-group" size={18} color="#FF9800" solid />
+            <Text style={styles.equipmentName}>Alças</Text>
+            <Text style={styles.equipmentSku}>(COL-ALC)</Text>
+          </View>
+          
+          <Text style={styles.equipmentCount}>{apiaryEquipment.supers}</Text>
+          
+          <View style={styles.equipmentActions}>
+            <TouchableOpacity
+              style={[styles.equipmentButton, styles.addButton]}
+              onPress={() => handleEquipmentTransfer('super', 'add')}
+            >
+              <FontAwesome5 name="plus" size={12} color="#FFFFFF" />
+            </TouchableOpacity>
+            
+            <TouchableOpacity
+              style={[styles.equipmentButton, styles.removeButton]}
+              onPress={() => handleEquipmentTransfer('super', 'return')}
+              disabled={apiaryEquipment.supers <= 0}
+            >
+              <FontAwesome5 name="minus" size={12} color="#FFFFFF" />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </View>
+  );
+
+  // Função para lidar com transferências de equipamentos
+  const handleEquipmentTransfer = (
+    equipmentType: 'hive' | 'super', 
+    action: 'add' | 'return'
+  ) => {
+    const productId = equipmentType === 'hive' ? 'COL-COL' : 'COL-ALC';
+    const productName = equipmentType === 'hive' ? 'Colmeias' : 'Alças';
+    
+    navigation.navigate('TransferEquipment', {
+      apiaryId: apiary?.id,
+      apiaryName: apiary?.name || 'Apiário',
+      productId: productId,
+      productName: productName,
+      isReturn: action === 'return',
+      currentCount: equipmentType === 'hive' ? apiaryEquipment.hives : apiaryEquipment.supers
+    });
+  };
 
   if (loading) {
     return (
@@ -409,52 +647,19 @@ const ApiaryDetailsScreen: React.FC = () => {
                   <Text style={[styles.notesText, { color: textColor }]}>{apiary.notes}</Text>
                 </View>
               )}
+              
+              {/* Move the history section here for the info tab */}
+              {renderTransferHistory()}
             </View>
           )}
           
           {/* Tab de Equipamentos */}
           {activeTab === 'equipment' && (
             <View>
-              <View style={[styles.equipmentHeader, { backgroundColor: cardBackgroundColor }]}>
-                <Text style={[styles.equipmentHeaderTitle, { color: textColor }]}>Equipamentos no Apiário</Text>
-                <TouchableOpacity style={styles.addButton} onPress={handleAddEquipment}>
-                  <FontAwesome5 name="plus" size={16} color="#FFFFFF" />
-                </TouchableOpacity>
-              </View>
+              {renderEquipmentSection()}
               
-              {equipment.length === 0 ? (
-                <View style={[styles.emptyStateCard, { backgroundColor: cardBackgroundColor }]}>
-                  <FontAwesome5 name="tools" size={40} color={secondaryTextColor} />
-                  <Text style={[styles.emptyStateText, { color: secondaryTextColor }]}>
-                    Nenhum equipamento registrado neste apiário
-                  </Text>
-                </View>
-              ) : (
-                equipment.map((item) => (
-                  <View 
-                    key={item.id} 
-                    style={[styles.equipmentCard, { backgroundColor: cardBackgroundColor }]}
-                  >
-                    <View style={styles.equipmentInfo}>
-                      <Text style={[styles.equipmentName, { color: textColor }]}>{item.name}</Text>
-                      <Text style={[styles.equipmentQuantity, { color: secondaryTextColor }]}>
-                        {item.quantity} {item.unit}
-                      </Text>
-                      {item.notes && (
-                        <Text style={[styles.equipmentNotes, { color: secondaryTextColor }]}>
-                          {item.notes}
-                        </Text>
-                      )}
-                    </View>
-                    <TouchableOpacity 
-                      style={styles.equipmentActionButton}
-                      onPress={() => Alert.alert('Remover equipamento', 'Esta funcionalidade está em desenvolvimento.')}
-                    >
-                      <FontAwesome5 name="arrow-up" size={14} color="#F44336" />
-                    </TouchableOpacity>
-                  </View>
-                ))
-              )}
+              {/* Optional: Also show history in equipment tab */}
+              {renderTransferHistory()}
             </View>
           )}
           
@@ -474,6 +679,9 @@ const ApiaryDetailsScreen: React.FC = () => {
                   Nenhuma tarefa programada para este apiário
                 </Text>
               </View>
+              
+              {/* Optional: Also show history in tasks tab */}
+              {renderTransferHistory()}
             </View>
           )}
         </ScrollView>
@@ -699,6 +907,171 @@ const styles = StyleSheet.create({
   tasksHeaderTitle: {
     fontSize: scale(16),
     fontWeight: 'bold',
+  },
+  sections: {
+    padding: scale(16),
+  },
+  section: {
+    marginBottom: scale(16),
+  },
+  sectionTitle: {
+    fontSize: scale(16),
+    fontWeight: 'bold',
+    color: 'white',
+    marginBottom: scale(8),
+  },
+  sectionValue: {
+    fontSize: scale(14),
+    color: 'white',
+    fontWeight: '500',
+  },
+  sectionActions: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  sectionButton: {
+    padding: scale(12),
+    borderRadius: scale(8),
+    backgroundColor: '#4CAF50',
+  },
+  sectionButtonText: {
+    color: 'white',
+    fontWeight: '500',
+  },
+  returnButton: {
+    backgroundColor: '#FFC107',
+  },
+  historySection: {
+    marginTop: scale(20),
+    padding: scale(16),
+  },
+  historyTitle: {
+    fontSize: scale(18),
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginBottom: scale(16),
+  },
+  noHistoryText: {
+    color: '#999999',
+    textAlign: 'center',
+    fontStyle: 'italic',
+  },
+  historyItem: {
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: scale(8),
+    padding: scale(12),
+    marginBottom: scale(10),
+  },
+  historyHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: scale(8),
+  },
+  productTypeTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,193,7,0.2)',
+    paddingHorizontal: scale(8),
+    paddingVertical: scale(4),
+    borderRadius: scale(4),
+  },
+  productTypeText: {
+    color: '#FFFFFF',
+    fontSize: scale(12),
+    marginLeft: scale(4),
+    fontWeight: '500',
+  },
+  transferDate: {
+    color: '#999999',
+    fontSize: scale(12),
+  },
+  transferFlow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: scale(8),
+  },
+  locationText: {
+    color: '#FFFFFF',
+    fontSize: scale(14),
+  },
+  arrowIcon: {
+    marginHorizontal: scale(8),
+  },
+  transferDetails: {
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.1)',
+    paddingTop: scale(8),
+  },
+  quantityText: {
+    color: '#FFFFFF',
+    fontSize: scale(14),
+    fontWeight: '500',
+  },
+  notesText: {
+    color: '#CCCCCC',
+    fontSize: scale(12),
+    fontStyle: 'italic',
+    marginTop: scale(4),
+  },
+  sectionContainer: {
+    padding: scale(16),
+  },
+  equipmentContainer: {
+    backgroundColor: 'rgba(255,255,255,0.05)',
+    borderRadius: 12,
+    padding: 16,
+    marginTop: 8,
+  },
+  equipmentRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.1)',
+  },
+  equipmentNameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  equipmentName: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    marginLeft: 8,
+  },
+  equipmentSku: {
+    color: '#CCCCCC',
+    fontSize: 14,
+    marginLeft: 4,
+  },
+  equipmentCount: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: 'bold',
+    minWidth: 40,
+    textAlign: 'center',
+  },
+  equipmentActions: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    width: 90,
+  },
+  equipmentButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 8,
+  },
+  addButton: {
+    backgroundColor: '#4CD964', // Verde
+  },
+  removeButton: {
+    backgroundColor: '#FF9500', // Laranja
   },
 });
 

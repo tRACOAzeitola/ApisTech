@@ -227,7 +227,14 @@ Contribuições são bem-vindas! Sente-te à vontade para abrir issues ou enviar
 
 ## 📝 Changelog
 
-### Versão 1.3.1 (Atual)
+### Versão 1.3.2 (Atual)
+- Corrigido posicionamento do histórico de transferências na tela de detalhes do apiário
+- Melhorado o layout da tela de detalhes do apiário para melhor visualização em dispositivos móveis
+- Corrigidas questões de tipagem para os componentes de histórico de transferências
+- Ajustada a exibição de equipamentos na tela de detalhes do apiário para evitar duplicação
+- Otimizada a experiência de rolagem na tela de detalhes do apiário
+
+### Versão 1.3.1
 - Alterado esquema de cores para tons de azul em toda a aplicação
 - Ajustada a posição dos ícones na barra de navegação para melhor usabilidade
 - Corrigido comportamento do botão Home para retornar à tela principal (MainScreen)
