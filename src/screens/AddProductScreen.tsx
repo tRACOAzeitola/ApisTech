@@ -284,31 +284,29 @@ const AddProductScreen: React.FC = () => {
     navigation.goBack();
   };
 
-  // Definir cores baseadas no tema
-  const backgroundColor = isDark ? colors.background : colors.background;
+  // Updated colors based on CategoryProductsScreen
+  const backgroundColor = isDark ? '#000000' : '#F2F2F7';
   const cardBackgroundColor = isDark 
-    ? (colors.cardBackground?.dark || '#302403')
-    : (colors.cardBackground?.light || '#FFFDF7');
+    ? '#1A1A1A'
+    : '#FFFFFF';
   const textColor = isDark 
-    ? (colors.text?.dark?.primary || '#FFF8E1')
-    : (colors.text?.light?.primary || '#5D2E0D');
+    ? '#FFFFFF'
+    : '#000000';
   const secondaryTextColor = isDark 
-    ? (colors.text?.dark?.secondary || '#FFE082') 
-    : (colors.text?.light?.secondary || '#8B4513');
-  const accentColor = isDark
-    ? (colors.primary?.dark || '#FFC107')
-    : (colors.primary?.light || '#FFC107');
+    ? '#CCCCCC' 
+    : '#666666';
+  const accentColor = '#007AFF';  // iOS blue color instead of yellow
   const borderColor = isDark
-    ? 'rgba(255, 193, 7, 0.2)'
-    : 'rgba(139, 69, 19, 0.2)';
+    ? 'rgba(255, 255, 255, 0.1)'
+    : 'rgba(0, 0, 0, 0.1)';
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor }]}>
       {/* Cabeçalho com botões de ação */}
       <LinearGradient
         colors={isDark 
-          ? (colors.gradients?.header?.dark || ['#5D2E0D', '#3E1F08']) 
-          : (colors.gradients?.header?.light || ['#FFC107', '#FFB300'])}
+          ? ['#0A84FF', '#007AFF'] 
+          : ['#0A84FF', '#007AFF']}
         style={styles.header}
         start={{ x: 0, y: 0 }}
         end={{ x: 0, y: 1 }}

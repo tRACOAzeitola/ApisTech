@@ -47,8 +47,8 @@ interface Apiary {
 const MOCK_APIARIES: Apiary[] = [
   {
     id: '1',
-    name: 'Apiário Sul',
-    location: 'Serra da Estrela',
+    name: 'Mediterraneo',
+    location: 'Meimoa, Benquerença',
     hiveCount: 12,
     createdAt: new Date('2024-01-15'),
     lastVisit: new Date('2024-05-10'),
@@ -59,8 +59,8 @@ const MOCK_APIARIES: Apiary[] = [
   },
   {
     id: '2',
-    name: 'Apiário Norte',
-    location: 'Guarda',
+    name: 'Bosque',
+    location: 'Meimao',
     hiveCount: 8,
     createdAt: new Date('2023-11-03'),
     lastVisit: new Date('2024-04-22'),
@@ -114,11 +114,11 @@ const ApiaryItem: React.FC<ApiaryItemProps> = ({ apiary, onPress }) => {
         <Text style={[styles.apiaryName, { color: colors.text.primary }]}>
           {apiary.name}
         </Text>
-        <View style={styles.hivesContainer}>
+        <View style={[styles.hivesContainer, { backgroundColor: 'rgba(10, 132, 255, 0.1)' }]}>
           <MaterialCommunityIcons 
             name="hexagon-multiple" 
             size={16} 
-            color={isDark ? '#FFAB00' : '#F57C00'} 
+            color={isDark ? '#0A84FF' : '#007AFF'} 
           />
           <Text style={[styles.hivesCount, { color: colors.text.secondary }]}>
             {apiary.hiveCount}
@@ -232,19 +232,20 @@ const ApiariesScreen: React.FC = () => {
     ? 'rgba(255, 193, 7, 0.2)'  // Amarelo transparente
     : 'rgba(139, 69, 19, 0.2)'; // Marrom transparente
 
+  // Updated status color function
+  const getStatusColor = (lastVisit?: Date): string => {
+    if (!lastVisit) return '#8E8E93'; // Cinza para nunca visitado
+    
+    const daysElapsed = Math.floor((new Date().getTime() - lastVisit.getTime()) / (1000 * 3600 * 24));
+    
+    if (daysElapsed <= 15) return '#4CD964'; // Verde: recente 
+    if (daysElapsed <= 30) return '#007AFF'; // Azul: dentro de um mês
+    return '#FF3B30'; // Vermelho: mais de um mês
+  };
+
   // Card para cada apiário
   const renderApiaryCard = ({ item, index }: { item: Apiary, index: number }) => {
     // Status do apiário baseado na última visita
-    const getStatusColor = (lastVisit?: Date): string => {
-      if (!lastVisit) return '#808080'; // Cinza para nunca visitado
-      
-      const daysElapsed = Math.floor((new Date().getTime() - lastVisit.getTime()) / (1000 * 3600 * 24));
-      
-      if (daysElapsed <= 15) return '#4CAF50'; // Verde: recente 
-      if (daysElapsed <= 30) return '#FFC107'; // Amarelo: dentro de um mês
-      return '#F44336'; // Vermelho: mais de um mês
-    };
-
     const statusColor = getStatusColor(item.lastVisit);
 
     return (
@@ -271,7 +272,7 @@ const ApiariesScreen: React.FC = () => {
             {/* Colmeias */}
             <View style={styles.detailItem}>
               <View style={styles.detailIconContainer}>
-                <FontAwesome5 name="home" size={16} color="#FFA000" />
+                <FontAwesome5 name="home" size={16} color="#007AFF" />
               </View>
               <Text style={[styles.detailValue, { color: textColor }]}>{item.hiveCount}</Text>
               <Text style={[styles.detailLabel, { color: secondaryTextColor }]}>Colmeias</Text>
@@ -409,7 +410,7 @@ const ApiariesScreen: React.FC = () => {
         {/* Botão flutuante para adicionar */}
         <TouchableOpacity style={styles.fab} onPress={handleAddApiary}>
           <LinearGradient
-            colors={['#FFC107', '#FFB300', '#FFA000']}
+            colors={['#0A84FF', '#007AFF', '#0063CC']}
             style={styles.fabGradient}
           >
             <FontAwesome5 name="plus" size={20} color="#FFFFFF" />

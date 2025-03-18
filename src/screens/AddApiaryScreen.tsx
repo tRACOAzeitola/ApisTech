@@ -35,13 +35,13 @@ interface NewApiary {
 
 // Opções comuns de flora para seleção rápida
 const COMMON_FLORA_OPTIONS = [
-  "Eucalipto",
-  "Laranjeira",
-  "Silvestre",
-  "Acácia",
-  "Canola",
-  "Lavanda",
-  "Girassol"
+  "Rosmaninho",
+  "Queiró",
+  "Torga",
+  "Urze",
+  "Carvalho",
+  "Castanheiro",
+  "Multi-flora"
 ];
 
 const AddApiaryScreen: React.FC = () => {
@@ -135,23 +135,24 @@ const AddApiaryScreen: React.FC = () => {
     );
   };
   
-  // Cores baseadas no tema
-  const backgroundColor = isDark ? colors.background : colors.background;
+  // Cores atualizadas baseadas no tema
+  const backgroundColor = isDark ? '#000000' : '#F2F2F7';
   const cardBackgroundColor = isDark 
-    ? (colors.cardBackground?.dark || '#302403')
-    : (colors.cardBackground?.light || '#FFFDF7');
+    ? '#1A1A1A' // Cinza escuro
+    : '#FFFFFF'; // Branco
   const textColor = isDark 
-    ? (colors.text?.dark?.primary || '#FFF8E1')
-    : (colors.text?.light?.primary || '#5D2E0D');
+    ? '#FFFFFF' // Branco
+    : '#000000'; // Preto
   const secondaryTextColor = isDark 
-    ? (colors.text?.dark?.secondary || '#FFE082') 
-    : (colors.text?.light?.secondary || '#8B4513');
+    ? '#CCCCCC' // Cinza claro
+    : '#666666'; // Cinza
   const inputBackgroundColor = isDark
-    ? 'rgba(0, 0, 0, 0.2)'
-    : 'rgba(255, 255, 255, 0.7)';
+    ? 'rgba(30, 30, 30, 0.8)' // Cinza muito escuro semi-transparente
+    : 'rgba(242, 242, 247, 0.7)'; // Cinza muito claro semi-transparente
   const placeholderColor = isDark
-    ? 'rgba(255, 248, 225, 0.5)'
-    : 'rgba(93, 46, 13, 0.5)';
+    ? 'rgba(255, 255, 255, 0.5)' // Branco semi-transparente
+    : 'rgba(0, 0, 0, 0.3)'; // Preto semi-transparente
+  const accentColor = '#007AFF'; // Azul iOS
 
   return (
     <ScreenLayout 
@@ -161,7 +162,7 @@ const AddApiaryScreen: React.FC = () => {
       onBackPress={() => navigation.goBack()}
       rightComponent={
         <TouchableOpacity onPress={handleSaveApiary}>
-          <Text style={{ color: '#FFC107', fontSize: scale(16), fontWeight: 'bold' }}>Salvar</Text>
+          <Text style={{ color: '#007AFF', fontSize: scale(16), fontWeight: 'bold' }}>Salvar</Text>
         </TouchableOpacity>
       }
     >
@@ -253,7 +254,7 @@ const AddApiaryScreen: React.FC = () => {
             />
           </View>
           
-          {/* Opções rápidas de flora */}
+          {/* Opções rápidas de flora - atualizado para usar azul */}
           <Text style={[styles.quickOptionsLabel, { color: secondaryTextColor }]}>Opções Comuns:</Text>
           <ScrollView 
             horizontal 
@@ -264,7 +265,7 @@ const AddApiaryScreen: React.FC = () => {
               <TouchableOpacity 
                 key={index}
                 style={[styles.floraOption, { 
-                  backgroundColor: isDark ? 'rgba(255, 193, 7, 0.1)' : 'rgba(255, 193, 7, 0.2)'
+                  backgroundColor: isDark ? 'rgba(10, 132, 255, 0.15)' : 'rgba(10, 132, 255, 0.1)'
                 }]}
                 onPress={() => addFloraType(flora)}
               >
@@ -351,7 +352,7 @@ const AddApiaryScreen: React.FC = () => {
           onPress={handleSaveApiary}
         >
           <LinearGradient
-            colors={['#FFC107', '#FFB300', '#FFA000']}
+            colors={['#0A84FF', '#007AFF', '#0063CC']}
             style={styles.saveButtonGradient}
           >
             <Text style={styles.saveButtonText}>SALVAR APIÁRIO</Text>
@@ -366,6 +367,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: scale(16),
+    backgroundColor: '#000000',
   },
   sectionTitle: {
     fontSize: scale(13),
@@ -443,6 +445,14 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: scale(16),
     fontWeight: 'bold',
+  },
+  apiaryCard: {
+    backgroundColor: '#1A1A1A',
+  },
+  hivesContainer: {
+    backgroundColor: 'rgba(10, 132, 255, 0.1)',
+  },
+  fabGradient: {
   },
 });
 

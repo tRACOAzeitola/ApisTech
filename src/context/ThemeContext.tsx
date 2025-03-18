@@ -2,90 +2,92 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useColorScheme, Platform, Appearance } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// Definição de cores para tema inspirado em apicultura
+// Definição de cores para tema com predominância de azul ao invés de amarelo
 const colors = {
   // Cores primárias
   primary: {
-    light: '#FFC107', // Amarelo mel para tema claro
-    dark: '#FFC107',  // Amarelo mel para tema escuro
+    light: '#007AFF', // Azul iOS para tema claro
+    dark: '#0A84FF',  // Azul iOS mais brilhante para tema escuro
   },
   accent: {
-    light: '#8B4513', // Marrom madeira para acentos no tema claro
-    dark: '#A05629',  // Marrom madeira mais claro para acentos no tema escuro
+    light: '#5AC8FA', // Azul claro para acentos no tema claro
+    dark: '#64D2FF',  // Azul claro mais brilhante para acentos no tema escuro
   },
   // Cores de fundo
   background: {
-    light: '#FFF8E1', // Creme claro (cera de abelha) para fundo no tema claro
-    dark: '#1D1705',  // Marrom muito escuro para fundo no tema escuro
+    light: '#F2F2F7', // Cinza muito claro para fundo no tema claro
+    dark: '#000000',  // Preto para fundo no tema escuro
   },
   // Cor de cartões/superfícies
   surface: {
-    light: '#FFFDF7', // Creme muito claro para superfícies no tema claro
-    dark: '#261C06',  // Marrom meio escuro para superfícies no tema escuro
+    light: '#FFFFFF', // Branco para superfícies no tema claro
+    dark: '#1A1A1A',  // Cinza escuro para superfícies no tema escuro
   },
   cardBackground: {
-    light: '#FFFDF7', // Creme muito claro para cartões no tema claro
-    dark: '#302403',  // Marrom escuro para cartões no tema escuro
+    light: '#FFFFFF', // Branco para cartões no tema claro
+    dark: '#1A1A1A',  // Cinza escuro para cartões no tema escuro
   },
   // Cores para interruptores (toggle switches)
   switch: {
     activeTrack: {
-      light: '#FFC107', // Amarelo mel para trilha ativa no tema claro
-      dark: '#FFC107',  // Amarelo mel para trilha ativa no tema escuro
+      light: '#007AFF', // Azul iOS para trilha ativa no tema claro
+      dark: '#0A84FF',  // Azul iOS para trilha ativa no tema escuro
     },
     inactiveTrack: {
-      light: 'rgba(139, 69, 19, 0.3)', // Marrom transparente para trilha inativa no tema claro
-      dark: 'rgba(255, 193, 7, 0.3)',  // Amarelo transparente para trilha inativa no tema escuro
+      light: 'rgba(0, 122, 255, 0.3)', // Azul transparente para trilha inativa no tema claro
+      dark: 'rgba(10, 132, 255, 0.3)',  // Azul transparente para trilha inativa no tema escuro
     },
     thumb: {
       light: '#FFFFFF', // Branco para o polegar no tema claro
-      dark: '#FFF8E1',  // Creme claro para o polegar no tema escuro
+      dark: '#FFFFFF',  // Branco para o polegar no tema escuro
     },
   },
   // Textos
   text: {
     primary: {
-      light: '#5D2E0D', // Marrom escuro para texto principal no tema claro
-      dark: '#FFF8E1',  // Creme claro para texto principal no tema escuro
+      light: '#000000', // Preto para texto principal no tema claro
+      dark: '#FFFFFF',  // Branco para texto principal no tema escuro
     },
     secondary: {
-      light: '#8B4513', // Marrom para texto secundário no tema claro
-      dark: '#FFE082',  // Amarelo claro para texto secundário no tema escuro
+      light: '#666666', // Cinza para texto secundário no tema claro
+      dark: '#CCCCCC',  // Cinza claro para texto secundário no tema escuro
     },
     accent: {
-      light: '#E6A800', // Amarelo escuro para texto de destaque no tema claro
-      dark: '#FFC107',  // Amarelo mel para texto de destaque no tema escuro
+      light: '#007AFF', // Azul iOS para texto de destaque no tema claro
+      dark: '#0A84FF',  // Azul iOS para texto de destaque no tema escuro
     },
   },
   // Bordas
   border: {
-    light: 'rgba(139, 69, 19, 0.2)', // Marrom transparente para tema claro
-    dark: 'rgba(255, 193, 7, 0.2)',  // Amarelo transparente para tema escuro
+    light: 'rgba(0, 0, 0, 0.1)', // Preto transparente para tema claro
+    dark: 'rgba(255, 255, 255, 0.1)',  // Branco transparente para tema escuro
   },
-  // Categorias específicas para o sistema (cores inspiradas em apicultura)
+  // Categorias específicas para o sistema
   categoryColors: [
-    '#FFC107', // Amarelo mel
-    '#8B4513', // Marrom madeira
-    '#0288D1', // Azul (céu)
-    '#FFF8E1', // Creme claro (cera de abelha)
-    '#8BC34A', // Verde oliva (plantas)
-    '#FFB300', // Âmbar (mel mais escuro)
-    '#795548', // Marrom mais escuro (madeira envelhecida)
-    '#FFE082', // Amarelo claro (mel claro)
+    '#007AFF', // Azul iOS
+    '#5AC8FA', // Azul claro
+    '#FF3B30', // Vermelho
+    '#4CD964', // Verde
+    '#FF9500', // Laranja
+    '#5856D6', // Roxo
+    '#FF2D55', // Rosa
+    '#8E8E93', // Cinza
   ],
   // Gradientes para componentes
   gradients: {
-    primary: ['#FFC107', '#FFB300', '#FFA000'], // Gradiente de amarelo mel
-    secondary: ['#8B4513', '#795548', '#5D2E0D'], // Gradiente de marrom
+    primary: ['#0A84FF', '#007AFF', '#0063CC'], // Gradiente de azul
+    secondary: ['#5AC8FA', '#4CB5E6', '#3A9BCC'], // Gradiente de azul claro
     card: {
-      light: ['#FFFDF7', '#FFF8E1'], // Gradiente claro para cartões no tema claro
-      dark: ['#302403', '#1D1705'], // Gradiente escuro para cartões no tema escuro
+      light: ['#FFFFFF', '#F2F2F7'], // Gradiente claro para cartões no tema claro
+      dark: ['#1A1A1A', '#0E0E0E'], // Gradiente escuro para cartões no tema escuro
     },
     header: {
-      light: ['#FFC107', '#FFB300'], // Gradiente amarelo para cabeçalhos no tema claro
-      dark: ['#5D2E0D', '#3E1F08'], // Gradiente marrom para cabeçalhos no tema escuro
+      light: ['#0A84FF', '#007AFF'], // Gradiente azul para cabeçalhos no tema claro
+      dark: ['#0A84FF', '#0063CC'], // Gradiente azul para cabeçalhos no tema escuro
     }
   },
+  // Cor de overlay
+  overlay: 'rgba(0, 0, 0, 0.6)', // Preto com transparência
 };
 
 // Diferentes tamanhos para os elementos de UI conforme plataforma
