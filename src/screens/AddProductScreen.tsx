@@ -9,189 +9,204 @@ import {
   Alert,
   SafeAreaView,
   KeyboardAvoidingView,
-  Platform,
-  Switch
+  Platform
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
-import { CATEGORIES } from '../data/mockData';
 import { RootStackParamList } from '../types';
 import { Unit } from '../types/models/product.types';
 import { scale } from '../utils/responsive';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import LinearGradient from 'react-native-linear-gradient';
 import { useTheme } from '../context/ThemeContext';
 
-// Lista de apiários - seria carregada de uma API/banco de dados real
-const APIARIES = [
-  { id: '1', name: 'Apiário Sul' },
-  { id: '2', name: 'Apiário Norte' },
-  { id: '3', name: 'Apiário Centro' },
-  { id: '4', name: 'Apiário Litoral' },
+// Lista de categorias disponíveis - similar ao Swift
+const CATEGORIAS = [
+  "Mel",
+  "Material de Colmeia",
+  "Produtos Veterinários",
+  "Embalamento",
+  "Material de Visita",
+  "Equipamento de Melaria",
+  "Ferramentas Apícolas",
+  "Cera"
 ];
+
+// Estados disponíveis para o produto - similar ao Swift
+const ESTADOS = ["Novo", "Usado"];
+
+// Unidades disponíveis - similar ao Swift
+const UNIDADES = ["kg", "g", "L", "ml", "unid."];
 
 type AddProductScreenRouteProp = RouteProp<RootStackParamList, 'AddProduct'>;
 
 /**
  * Tela de adição de novo produto
- * 
- * Considerações importantes:
- * 1. O ID é gerado automaticamente com base na categoria (MEL-, VET-, etc.)
- * 2. Localização varia para colmeias (armazém ou apiários específicos)
- * 3. Campos adaptados conforme o tipo de produto
+ * Adaptado de AddProdutoView.swift para React Native
  */
 const AddProductScreen: React.FC = () => {
   const navigation = useNavigation();
   const route = useRoute<AddProductScreenRouteProp>();
   const { colors, isDark } = useTheme();
   
-  // Estados básicos do produto
-  const [productName, setProductName] = useState('');
-  const [productId, setProductId] = useState('');
-  const [productSubtype, setProductSubtype] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [categoryName, setCategoryName] = useState('Selecionar');
-  
-  // Estados de quantidade
-  const [quantity, setQuantity] = useState('');
-  const [unit, setUnit] = useState<Unit>('kg');
+  // Estados básicos do produto - alinhados com Swift
+  const [codigo, setCodigo] = useState('');
+  const [nome, setNome] = useState('');
+  const [categoria, setCategoria] = useState('Mel'); // Valor padrão como no Swift
+  const [subtipo, setSubtipo] = useState('');
   
   // Estados de localização e status
-  const [status, setStatus] = useState('Novo');
-  const [location, setLocation] = useState('Armazém');
-  const [apiary, setApiary] = useState('');
-  const [isHive, setIsHive] = useState(false); // Flag para identificar se é uma colmeia
+  const [estado, setEstado] = useState('Novo');
+  const [localizacao, setLocalizacao] = useState('');
+  
+  // Estados de quantidade
+  const [quantidade, setQuantidade] = useState('');
+  const [unidade, setUnidade] = useState<Unit>('kg');
   
   // Informações adicionais
-  const [campaign, setCampaign] = useState('');
-  const [notes, setNotes] = useState('');
-  const [stockAlert, setStockAlert] = useState('');
-  const [price, setPrice] = useState('');
+  const [campanha, setCampanha] = useState('');
+  const [notas, setNotas] = useState('');
 
-  // Gerar ID baseado na categoria e subtipo
-  const generateProductId = useCallback(() => {
-    if (!selectedCategory || !productSubtype) return '';
+  /**
+   * Gera o ID do produto baseado no nome e categoria
+   * Adaptado diretamente de AddProdutoView.swift - função atualizarCodigo()
+   */
+  const atualizarCodigo = useCallback(() => {
+    // Definir prefixos específicos para cada categoria
+    let prefixoCategoria = '';
     
-    // Extrair as 3 primeiras iniciais do subtipo (ou menos, se o subtipo for menor)
-    const subtypeInitials = productSubtype.substring(0, 3).toUpperCase();
-    
-    // Gerar prefixo baseado na categoria
-    let prefix = '';
-    const category = CATEGORIES.find(cat => cat.id === selectedCategory);
-    
-    if (category) {
-      if (category.id === '1') { // Mel
-        prefix = 'MEL';
-      } else if (category.id === '3') { // Produtos Veterinários
-        prefix = 'VET';
-      } else if (category.id === '2') { // Material de Colmeia
-        prefix = 'COL';
-        setIsHive(productSubtype.toLowerCase().includes('colmeia'));
-      } else if (category.id === '4') { // Embalamento
-        prefix = 'EMB';
-      } else if (category.id === '5') { // Material de Visita
-        prefix = 'VIS';
-      } else if (category.id === '6') { // Equipamento de Melaria
-        prefix = 'EQP';
-      } else if (category.id === '7') { // Ferramentas Apícolas
-        prefix = 'FER';
-      } else if (category.id === '8') { // Cera
-        prefix = 'CER';
-      } else {
-        prefix = 'PRD'; // Produto genérico
-      }
+    switch (categoria) {
+      case "Mel":
+        prefixoCategoria = "MEL";
+        break;
+      case "Produtos Veterinários":
+        prefixoCategoria = "VET";
+        break;
+      case "Material de Colmeia":
+        prefixoCategoria = "COL";
+        break;
+      case "Embalamento":
+        prefixoCategoria = "EMB";
+        break;
+      case "Material de Visita":
+        prefixoCategoria = "VIS";
+        break;
+      case "Equipamento de Melaria":
+        prefixoCategoria = "EQP";
+        break;
+      case "Ferramentas Apícolas":
+        prefixoCategoria = "FER";
+        break;
+      case "Cera":
+        prefixoCategoria = "CER";
+        break;
+      default:
+        prefixoCategoria = String(categoria.substring(0, 3)).toUpperCase();
     }
     
-    if (subtypeInitials.length > 0) {
-      return `${prefix} - ${subtypeInitials}`;
+    // Se não tiver nome, retorna apenas o prefixo da categoria
+    if (!nome) {
+      setCodigo(prefixoCategoria);
+      return;
     }
     
-    return prefix;
-  }, [selectedCategory, productSubtype]);
+    // Separar o nome em palavras e pegar as três primeiras letras de cada palavra
+    const palavras = nome.split(' ');
+    const codigosPalavras = palavras.map(palavra => 
+      String(palavra.substring(0, 3)).toUpperCase()
+    );
+    
+    // Juntar tudo com hífens
+    const codigoPalavras = codigosPalavras.join('-');
+    
+    if (codigoPalavras) {
+      setCodigo(`${prefixoCategoria}-${codigoPalavras}`);
+    } else {
+      setCodigo(prefixoCategoria);
+    }
+  }, [categoria, nome]);
 
-  // Atualizar ID quando categoria ou subtipo mudarem
+  // Atualizar ID quando nome do produto ou categoria mudarem
   useEffect(() => {
-    const newId = generateProductId();
-    setProductId(newId);
-  }, [selectedCategory, productSubtype, generateProductId]);
+    atualizarCodigo();
+  }, [categoria, nome, atualizarCodigo]);
 
   // Verifica se há uma categoria pré-selecionada nos parâmetros de navegação
   useEffect(() => {
     if (route.params?.categoryId) {
       const categoryId = route.params.categoryId;
-      setSelectedCategory(categoryId);
       
-      // Encontra a categoria e atualiza o nome e a unidade
-      const category = CATEGORIES.find(cat => cat.id === categoryId);
-      if (category) {
-        setCategoryName(category.name);
-        setUnit(category.unit || 'kg');
-        
-        // Verificar se a categoria está relacionada a colmeias
-        if (category.id === '2') { // Material de Colmeia
-          setIsHive(true);
-        }
+      // Encontra a categoria e atualiza o nome
+      const categoryIndex = parseInt(categoryId) - 1;
+      if (categoryIndex >= 0 && categoryIndex < CATEGORIAS.length) {
+        setCategoria(CATEGORIAS[categoryIndex]);
       }
     }
   }, [route.params]);
 
   /**
    * Salva o novo produto após validações
-   * 
-   * Fluxo:
-   * 1. Valida campos obrigatórios
-   * 2. Cria o objeto de produto
-   * 3. Salva no armazenamento (mock por enquanto)
-   * 4. Mostra confirmação e limpa o formulário
+   * Adaptado de AddProdutoView.swift - função salvarProduto()
    */
   const handleSaveProduct = () => {
     // Validação de campos obrigatórios
-    if (!productName || !quantity || !selectedCategory) {
+    if (!nome || !categoria) {
       Alert.alert(
         'Campos Obrigatórios',
-        'Por favor, preencha todos os campos obrigatórios (nome, quantidade e categoria).'
+        'Por favor, preencha o nome e a categoria do produto.'
       );
       return;
     }
     
-    // Verificação adicional para colmeias
-    if (isHive && location !== 'Armazém' && !apiary) {
+    // Validar quantidade
+    const quantidadeValue = parseFloat(quantidade.replace(',', '.'));
+    if (isNaN(quantidadeValue) || quantidadeValue <= 0) {
       Alert.alert(
-        'Localização Incompleta',
-        'Para colmeias fora do armazém, por favor selecione um apiário.'
+        'Quantidade Inválida',
+        'Por favor, insira uma quantidade válida.'
       );
       return;
     }
     
     // Criação do objeto de produto
-    const newProduct = {
-      id: productId || Math.random().toString(36).substring(2, 15),
-      name: productName,
-      description: productSubtype || undefined,
-      categoryId: selectedCategory,
-      quantity: parseFloat(quantity),
-      unit: unit,
-      dateAdded: new Date(),
-      dateModified: new Date(),
-      
-      // Campos opcionais
-      notes: notes || undefined,
-      stockAlert: stockAlert ? parseFloat(stockAlert) : undefined,
-      price: price ? parseFloat(price) : undefined,
-      location: isHive && location !== 'Armazém' ? apiary : location,
-      // Outros campos podem ser adicionados aqui conforme necessário
+    const novoProduto = {
+      id: Math.random().toString(36).substring(2, 15),
+      codigo: codigo,
+      nome: nome,
+      categoria: categoria,
+      subtipo: subtipo || undefined,
+      estado: estado || 'Novo',
+      localizacao: localizacao || 'Armazém',
+      quantidade: quantidadeValue,
+      unidade: unidade || 'kg',
+      campanha: campanha || undefined,
+      notas: notas || undefined,
+      dataAdicao: new Date(),
+      dataModificacao: new Date()
     };
     
-    console.log('Novo produto:', newProduct);
+    console.log('Novo produto:', novoProduto);
+    
+    // Também criar um registro de movimento de entrada - como no Swift
+    const movimentacao = {
+      id: Math.random().toString(36).substring(2, 15),
+      produtoId: novoProduto.id,
+      tipo: 'entrada',
+      quantidade: quantidadeValue,
+      unidade: unidade || 'kg',
+      observacao: 'Produto adicionado ao estoque',
+      data: new Date()
+    };
+    
+    console.log('Movimento de entrada:', movimentacao);
     
     // Mock de salvamento - em produção, isso chamaria um serviço de API
     Alert.alert(
       'Produto Adicionado',
-      `${productName} foi adicionado com sucesso.`,
+      `${nome} foi adicionado com sucesso.`,
       [{ text: 'OK', onPress: () => {
         clearForm();
-        // Opcional: navegar de volta após salvar
-        // navigation.goBack();
+        // Navegar de volta após salvar
+        navigation.goBack();
       }}]
     );
   };
@@ -200,21 +215,16 @@ const AddProductScreen: React.FC = () => {
    * Limpa todos os campos do formulário
    */
   const clearForm = () => {
-    setProductName('');
-    setProductId('');
-    setProductSubtype('');
-    setSelectedCategory('');
-    setCategoryName('Selecionar');
-    setQuantity('');
-    setUnit('kg');
-    setStatus('Novo');
-    setLocation('Armazém');
-    setApiary('');
-    setIsHive(false);
-    setCampaign('');
-    setNotes('');
-    setStockAlert('');
-    setPrice('');
+    setNome('');
+    setCodigo('');
+    setSubtipo('');
+    setCategoria('Mel');
+    setQuantidade('');
+    setUnidade('kg');
+    setEstado('Novo');
+    setLocalizacao('');
+    setCampanha('');
+    setNotas('');
   };
 
   /**
@@ -224,20 +234,10 @@ const AddProductScreen: React.FC = () => {
     Alert.alert(
       'Selecionar Categoria',
       'Escolha uma categoria:',
-      CATEGORIES.map(cat => ({
-        text: cat.name,
+      CATEGORIAS.map((cat, index) => ({
+        text: cat,
         onPress: () => {
-          setSelectedCategory(cat.id);
-          setCategoryName(cat.name);
-          setUnit(cat.unit || 'kg');
-          
-          // Verificar se a categoria está relacionada a colmeias
-          if (cat.id === '2') { // Material de Colmeia
-            // Verifica se o subtipo já foi preenchido e contém "colmeia"
-            setIsHive(productSubtype.toLowerCase().includes('colmeia'));
-          } else {
-            setIsHive(false);
-          }
+          setCategoria(cat);
         }
       }))
     );
@@ -251,9 +251,10 @@ const AddProductScreen: React.FC = () => {
       'Selecionar Estado',
       'Escolha o estado do produto:',
       [
-        { text: 'Novo', onPress: () => setStatus('Novo') },
-        { text: 'Usado', onPress: () => setStatus('Usado') },
-        { text: 'Reacondicionado', onPress: () => setStatus('Reacondicionado') },
+        ...ESTADOS.map(state => ({
+          text: state,
+          onPress: () => setEstado(state)
+        })),
         { text: 'Cancelar', style: 'cancel' }
       ]
     );
@@ -267,64 +268,9 @@ const AddProductScreen: React.FC = () => {
       'Selecionar Unidade',
       'Escolha a unidade de medida:',
       [
-        { text: 'kg', onPress: () => setUnit('kg') },
-        { text: 'Unidades', onPress: () => setUnit('Unidades') },
-        { text: 'litros', onPress: () => setUnit('litros') },
-        { text: 'gramas', onPress: () => setUnit('gramas') },
-        { text: 'Cancelar', style: 'cancel' }
-      ]
-    );
-  };
-
-  /**
-   * Abre o seletor de localização para colmeias
-   */
-  const handleLocationSelect = () => {
-    if (isHive) {
-      Alert.alert(
-        'Selecionar Localização',
-        'Onde este produto está localizado?',
-        [
-          { text: 'Armazém', onPress: () => {
-            setLocation('Armazém');
-            setApiary('');
-          }},
-          { text: 'Apiário', onPress: () => {
-            setLocation('Apiário');
-            handleApiarySelect();
-          }},
-          { text: 'Cancelar', style: 'cancel' }
-        ]
-      );
-    } else {
-      Alert.alert(
-        'Selecionar Localização',
-        'Onde este produto está localizado?',
-        [
-          { text: 'Armazém', onPress: () => setLocation('Armazém') },
-          { text: 'Estoque', onPress: () => setLocation('Estoque') },
-          { text: 'Prateleira', onPress: () => setLocation('Prateleira') },
-          { text: 'Outro', onPress: () => {
-            // Permitir inserir localização personalizada
-            setLocation('');
-          }},
-          { text: 'Cancelar', style: 'cancel' }
-        ]
-      );
-    }
-  };
-
-  /**
-   * Abre o seletor de apiários para colmeias
-   */
-  const handleApiarySelect = () => {
-    Alert.alert(
-      'Selecionar Apiário',
-      'Em qual apiário este produto está localizado?',
-      [
-        ...APIARIES.map(apiaryItem => ({
-          text: apiaryItem.name,
-          onPress: () => setApiary(apiaryItem.name)
+        ...UNIDADES.map(unitItem => ({
+          text: unitItem,
+          onPress: () => setUnidade(unitItem as Unit)
         })),
         { text: 'Cancelar', style: 'cancel' }
       ]
@@ -353,8 +299,8 @@ const AddProductScreen: React.FC = () => {
     ? (colors.primary?.dark || '#FFC107')
     : (colors.primary?.light || '#FFC107');
   const borderColor = isDark
-    ? 'rgba(255, 193, 7, 0.2)'  // Amarelo transparente
-    : 'rgba(139, 69, 19, 0.2)'; // Marrom transparente
+    ? 'rgba(255, 193, 7, 0.2)'
+    : 'rgba(139, 69, 19, 0.2)';
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor }]}>
@@ -391,30 +337,20 @@ const AddProductScreen: React.FC = () => {
           <View style={[styles.formSection, { backgroundColor: cardBackgroundColor }]}>
             {/* Nome do Produto */}
             <View style={[styles.inputContainer, { borderBottomColor: borderColor }]}>
+              <Text style={[styles.inputLabel, { color: secondaryTextColor }]}>Nome</Text>
               <TextInput
                 style={[styles.input, { color: textColor }]}
-                placeholder="Nome do Produto"
+                placeholder="Digite o nome do produto"
                 placeholderTextColor={secondaryTextColor}
-                value={productName}
-                onChangeText={setProductName}
+                value={nome}
+                onChangeText={setNome}
               />
             </View>
             
             {/* ID do Produto (gerado automaticamente) */}
             <View style={[styles.inputContainer, { borderBottomColor: borderColor }]}>
-              <Text style={[styles.inputLabel, { color: secondaryTextColor }]}>ID do Produto</Text>
-              <Text style={[styles.generatedIdText, { color: accentColor }]}>{productId || 'Automático'}</Text>
-            </View>
-            
-            {/* Subtipo */}
-            <View style={[styles.inputContainer, { borderBottomColor: borderColor }]}>
-              <TextInput
-                style={[styles.input, { color: textColor }]}
-                placeholder="Subtipo (Mediterrâneo, Varroa, etc.)"
-                placeholderTextColor={secondaryTextColor}
-                value={productSubtype}
-                onChangeText={setProductSubtype}
-              />
+              <Text style={[styles.inputLabel, { color: secondaryTextColor }]}>Código</Text>
+              <Text style={[styles.generatedIdText, { color: accentColor }]}>{codigo}</Text>
             </View>
             
             {/* Categoria */}
@@ -424,64 +360,50 @@ const AddProductScreen: React.FC = () => {
             >
               <Text style={[styles.selectLabel, { color: textColor }]}>Categoria</Text>
               <View style={styles.selectValue}>
-                <Text style={[styles.selectValueText, { color: accentColor }]}>{categoryName}</Text>
+                <Text style={[styles.selectValueText, { color: accentColor }]}>{categoria}</Text>
                 <MaterialCommunityIcons name="chevron-down" size={24} color={accentColor} />
               </View>
             </TouchableOpacity>
             
-            {/* Notas - opcionais */}
+            {/* Subtipo */}
             <View style={[styles.inputContainer, { borderBottomColor: borderColor }]}>
+              <Text style={[styles.inputLabel, { color: secondaryTextColor }]}>Subtipo (opcional)</Text>
               <TextInput
                 style={[styles.input, { color: textColor }]}
-                placeholder="Notas (opcional)"
+                placeholder="Subtipo (opcional)"
                 placeholderTextColor={secondaryTextColor}
-                value={notes}
-                onChangeText={setNotes}
-                multiline
+                value={subtipo}
+                onChangeText={setSubtipo}
               />
             </View>
           </View>
           
-          {/* SEÇÃO: LOCALIZAÇÃO */}
-          <Text style={[styles.sectionTitle, { color: secondaryTextColor }]}>LOCALIZAÇÃO</Text>
+          {/* SEÇÃO: ESTADO E LOCALIZAÇÃO */}
+          <Text style={[styles.sectionTitle, { color: secondaryTextColor }]}>ESTADO E LOCALIZAÇÃO</Text>
           <View style={[styles.formSection, { backgroundColor: cardBackgroundColor }]}>
-            {/* Localização */}
-            <TouchableOpacity 
-              style={[styles.selectContainer, { borderBottomColor: borderColor }]} 
-              onPress={handleLocationSelect}
-            >
-              <Text style={[styles.selectLabel, { color: textColor }]}>Localização</Text>
-              <View style={styles.selectValue}>
-                <Text style={[styles.selectValueText, { color: accentColor }]}>{location}</Text>
-                <MaterialCommunityIcons name="chevron-down" size={24} color={accentColor} />
-              </View>
-            </TouchableOpacity>
-            
-            {/* Apiário - apenas para colmeias */}
-            {isHive && location !== 'Armazém' && (
-              <TouchableOpacity 
-                style={[styles.selectContainer, { borderBottomColor: borderColor }]} 
-                onPress={handleApiarySelect}
-              >
-                <Text style={[styles.selectLabel, { color: textColor }]}>Apiário</Text>
-                <View style={styles.selectValue}>
-                  <Text style={[styles.selectValueText, { color: accentColor }]}>{apiary || 'Selecionar'}</Text>
-                  <MaterialCommunityIcons name="chevron-down" size={24} color={accentColor} />
-                </View>
-              </TouchableOpacity>
-            )}
-            
-            {/* Status */}
+            {/* Estado */}
             <TouchableOpacity 
               style={[styles.selectContainer, { borderBottomColor: borderColor }]} 
               onPress={handleStatusSelect}
             >
               <Text style={[styles.selectLabel, { color: textColor }]}>Estado</Text>
               <View style={styles.selectValue}>
-                <Text style={[styles.selectValueText, { color: accentColor }]}>{status}</Text>
+                <Text style={[styles.selectValueText, { color: accentColor }]}>{estado}</Text>
                 <MaterialCommunityIcons name="chevron-down" size={24} color={accentColor} />
               </View>
             </TouchableOpacity>
+            
+            {/* Localização */}
+            <View style={[styles.inputContainer, { borderBottomColor: borderColor }]}>
+              <Text style={[styles.inputLabel, { color: secondaryTextColor }]}>Localização</Text>
+              <TextInput
+                style={[styles.input, { color: textColor }]}
+                placeholder="Localização (ex: Armazém)"
+                placeholderTextColor={secondaryTextColor}
+                value={localizacao}
+                onChangeText={setLocalizacao}
+              />
+            </View>
           </View>
           
           {/* SEÇÃO: QUANTIDADE */}
@@ -489,39 +411,28 @@ const AddProductScreen: React.FC = () => {
           <View style={[styles.formSection, { backgroundColor: cardBackgroundColor }]}>
             {/* Quantidade */}
             <View style={[styles.inputContainer, { borderBottomColor: borderColor }]}>
+              <Text style={[styles.inputLabel, { color: secondaryTextColor }]}>Quantidade</Text>
               <TextInput
                 style={[styles.input, { color: textColor }]}
-                placeholder="Quantidade"
+                placeholder="Digite a quantidade"
                 placeholderTextColor={secondaryTextColor}
-                value={quantity}
-                onChangeText={setQuantity}
+                value={quantidade}
+                onChangeText={setQuantidade}
                 keyboardType="numeric"
               />
             </View>
             
             {/* Unidade */}
             <TouchableOpacity 
-              style={[styles.selectContainer, { borderBottomColor: borderColor }]} 
+              style={[styles.selectContainer, { borderBottomColor: 'transparent' }]} 
               onPress={handleUnitSelect}
             >
               <Text style={[styles.selectLabel, { color: textColor }]}>Unidade</Text>
               <View style={styles.selectValue}>
-                <Text style={[styles.selectValueText, { color: accentColor }]}>{unit}</Text>
+                <Text style={[styles.selectValueText, { color: accentColor }]}>{unidade}</Text>
                 <MaterialCommunityIcons name="chevron-down" size={24} color={accentColor} />
               </View>
             </TouchableOpacity>
-            
-            {/* Alerta de estoque */}
-            <View style={[styles.inputContainer, { borderBottomColor: borderColor }]}>
-              <TextInput
-                style={[styles.input, { color: textColor }]}
-                placeholder="Alerta de estoque mínimo (opcional)"
-                placeholderTextColor={secondaryTextColor}
-                value={stockAlert}
-                onChangeText={setStockAlert}
-                keyboardType="numeric"
-              />
-            </View>
           </View>
           
           {/* SEÇÃO: INFORMAÇÕES ADICIONAIS */}
@@ -529,27 +440,39 @@ const AddProductScreen: React.FC = () => {
           <View style={[styles.formSection, { backgroundColor: cardBackgroundColor }]}>
             {/* Campanha */}
             <View style={[styles.inputContainer, { borderBottomColor: borderColor }]}>
+              <Text style={[styles.inputLabel, { color: secondaryTextColor }]}>Campanha (opcional)</Text>
               <TextInput
                 style={[styles.input, { color: textColor }]}
                 placeholder="Campanha (opcional)"
                 placeholderTextColor={secondaryTextColor}
-                value={campaign}
-                onChangeText={setCampaign}
+                value={campanha}
+                onChangeText={setCampanha}
               />
             </View>
             
-            {/* Preço */}
-            <View style={[styles.inputContainer, { borderBottomColor: borderColor }]}>
+            {/* Notas */}
+            <View style={[styles.inputContainer, { borderBottomColor: 'transparent' }]}>
+              <Text style={[styles.inputLabel, { color: secondaryTextColor }]}>Notas (opcional)</Text>
               <TextInput
-                style={[styles.input, { color: textColor }]}
-                placeholder="Preço (opcional)"
+                style={[styles.textArea, { color: textColor, backgroundColor: isDark ? 'rgba(0,0,0,0.2)' : 'rgba(255,255,255,0.5)' }]}
+                placeholder="Informações adicionais (opcional)"
                 placeholderTextColor={secondaryTextColor}
-                value={price}
-                onChangeText={setPrice}
-                keyboardType="numeric"
+                value={notas}
+                onChangeText={setNotas}
+                multiline
+                numberOfLines={4}
+                textAlignVertical="top"
               />
             </View>
           </View>
+          
+          {/* Botão de Salvar */}
+          <TouchableOpacity 
+            style={[styles.saveButton, { backgroundColor: accentColor }]}
+            onPress={handleSaveProduct}
+          >
+            <Text style={styles.saveButtonFullText}>SALVAR PRODUTO</Text>
+          </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -592,6 +515,7 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontSize: scale(14),
+    fontWeight: '600',
     marginBottom: scale(8),
     marginTop: scale(16),
   },
@@ -612,6 +536,13 @@ const styles = StyleSheet.create({
   input: {
     fontSize: scale(16),
     paddingVertical: scale(4),
+  },
+  textArea: {
+    fontSize: scale(16),
+    height: scale(100),
+    borderRadius: scale(8),
+    padding: scale(10),
+    marginTop: scale(4),
   },
   generatedIdText: {
     fontSize: scale(16),
@@ -637,6 +568,19 @@ const styles = StyleSheet.create({
     fontSize: scale(16),
     marginRight: scale(8),
   },
+  saveButton: {
+    paddingVertical: scale(16),
+    paddingHorizontal: scale(20),
+    borderRadius: scale(8),
+    alignItems: 'center',
+    marginTop: scale(8),
+    marginBottom: scale(24),
+  },
+  saveButtonFullText: {
+    color: 'white',
+    fontSize: scale(16),
+    fontWeight: 'bold',
+  }
 });
 
 export default AddProductScreen;
