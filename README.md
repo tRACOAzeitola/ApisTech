@@ -227,7 +227,15 @@ Contribuições são bem-vindas! Sente-te à vontade para abrir issues ou enviar
 
 ## 📝 Changelog
 
-### Versão 1.3.0 (Atual)
+### Versão 1.3.1 (Atual)
+- Alterado esquema de cores para tons de azul em toda a aplicação
+- Ajustada a posição dos ícones na barra de navegação para melhor usabilidade
+- Corrigido comportamento do botão Home para retornar à tela principal (MainScreen)
+- Melhorias visuais nas telas de Apiários e formulários
+- Ajustados espaçamentos e padding para melhor experiência em diferentes dispositivos
+- Otimizado feedback visual nos elementos da interface
+
+### Versão 1.3.0
 - Implementado novo módulo de gestão de apiários com funcionalidades completas
 - Adicionada tela de visualização de lista de apiários com estatísticas gerais
 - Adicionada tela de detalhes do apiário com informações completas
