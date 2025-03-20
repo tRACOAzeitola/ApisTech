@@ -35,14 +35,27 @@ interface Apiary {
   owner?: string;
   contact?: string;
   imageUrl?: string;
+  coordinates?: string;
 }
 
-// Interface para Equipment
+// Interface para Equipamento
 interface Equipment {
   id: string;
   name: string;
   quantity: number;
   unit: string;
+  notes?: string;
+}
+
+// Interface para Transferência
+interface Transfer {
+  id: string;
+  productId: string;
+  productName: string;
+  quantity: number;
+  fromLocation: string;
+  toLocation: string;
+  date: Date;
   notes?: string;
 }
 
@@ -58,7 +71,8 @@ const MOCK_APIARY: Apiary = {
   estimatedProduction: 480,
   owner: 'João Silva',
   contact: '912345678',
-  notes: 'Apiário localizado próximo a uma área de eucaliptos. Acesso por estrada de terra, a 3 km da estrada principal.'
+  notes: 'Apiário localizado próximo a uma área de eucaliptos. Acesso por estrada de terra, a 3 km da estrada principal.',
+  coordinates: '40.7128,-74.0060'
 };
 
 // Dados de exemplo para equipamentos
@@ -69,6 +83,29 @@ const MOCK_EQUIPMENT: Equipment[] = [
   { id: '4', name: 'Macacão de apicultor', quantity: 2, unit: 'unidades' }
 ];
 
+// Mock data para transferências
+const MOCK_TRANSFERS: Transfer[] = [
+  { 
+    id: '1',
+    productId: 'COL-COL',
+    productName: 'Colmeias',
+    quantity: 5,
+    fromLocation: 'Armazém',
+    toLocation: 'Apiário Sul',
+    date: new Date('2025-03-13'),
+    notes: 'Instalação inicial'
+  },
+  {
+    id: '2',
+    productId: 'COL-ALC',
+    productName: 'Alças',
+    quantity: 10,
+    fromLocation: 'Armazém',
+    toLocation: 'Apiário Sul',
+    date: new Date('2025-03-15')
+  }
+];
+
 const ApiaryDetailsScreen: React.FC = () => {
   const navigation = useNavigation<ApiaryDetailsNavigationProp>();
   const route = useRoute<ApiaryDetailsRouteProp>();
@@ -77,6 +114,7 @@ const ApiaryDetailsScreen: React.FC = () => {
   // Estados
   const [apiary, setApiary] = useState<Apiary | null>(null);
   const [equipment, setEquipment] = useState<Equipment[]>([]);
+  const [transfers, setTransfers] = useState<Transfer[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'info' | 'equipment' | 'tasks'>('info');
   
@@ -88,6 +126,7 @@ const ApiaryDetailsScreen: React.FC = () => {
         setTimeout(() => {
           setApiary(MOCK_APIARY);
           setEquipment(MOCK_EQUIPMENT);
+          setTransfers(MOCK_TRANSFERS);
           setLoading(false);
         }, 1000);
       } catch (error) {
@@ -416,7 +455,7 @@ const ApiaryDetailsScreen: React.FC = () => {
           {activeTab === 'equipment' && (
             <View>
               <View style={[styles.equipmentHeader, { backgroundColor: cardBackgroundColor }]}>
-                <Text style={[styles.equipmentHeaderTitle, { color: textColor }]}>Equipamentos no Apiário</Text>
+                <Text style={[styles.equipmentHeaderTitle, { color: textColor }]}>Equipamentos</Text>
                 <TouchableOpacity style={styles.addButton} onPress={handleAddEquipment}>
                   <FontAwesome5 name="plus" size={16} color="#FFFFFF" />
                 </TouchableOpacity>
@@ -430,30 +469,145 @@ const ApiaryDetailsScreen: React.FC = () => {
                   </Text>
                 </View>
               ) : (
-                equipment.map((item) => (
-                  <View 
-                    key={item.id} 
-                    style={[styles.equipmentCard, { backgroundColor: cardBackgroundColor }]}
-                  >
-                    <View style={styles.equipmentInfo}>
-                      <Text style={[styles.equipmentName, { color: textColor }]}>{item.name}</Text>
-                      <Text style={[styles.equipmentQuantity, { color: secondaryTextColor }]}>
-                        {item.quantity} {item.unit}
-                      </Text>
-                      {item.notes && (
-                        <Text style={[styles.equipmentNotes, { color: secondaryTextColor }]}>
-                          {item.notes}
-                        </Text>
-                      )}
-                    </View>
-                    <TouchableOpacity 
-                      style={styles.equipmentActionButton}
-                      onPress={() => Alert.alert('Remover equipamento', 'Esta funcionalidade está em desenvolvimento.')}
+                <>
+                  {equipment.map((item) => (
+                    <View 
+                      key={item.id} 
+                      style={[styles.equipmentCard, { backgroundColor: cardBackgroundColor }]}
                     >
-                      <FontAwesome5 name="arrow-up" size={14} color="#F44336" />
-                    </TouchableOpacity>
+                      <View style={styles.equipmentIconContainer}>
+                        {item.name.toLowerCase().includes('colmeia') ? (
+                          <FontAwesome5 name="home" size={20} color="#FFC107" />
+                        ) : item.name.toLowerCase().includes('alça') ? (
+                          <MaterialCommunityIcons name="layers" size={22} color="#FF9800" />
+                        ) : (
+                          <FontAwesome5 name="tools" size={20} color="#8BC34A" />
+                        )}
+                      </View>
+                      
+                      <View style={styles.equipmentInfo}>
+                        <Text style={[styles.equipmentName, { color: textColor }]}>
+                          {item.name}
+                          {item.id && (
+                            <Text style={[styles.equipmentCode, { color: secondaryTextColor }]}>
+                              {" "}({item.id})
+                            </Text>
+                          )}
+                        </Text>
+                        {item.notes && (
+                          <Text style={[styles.equipmentNotes, { color: secondaryTextColor }]}>
+                            {item.notes}
+                          </Text>
+                        )}
+                      </View>
+                      
+                      <View style={styles.quantityContainer}>
+                        <Text style={[styles.equipmentQuantityValue, { color: textColor }]}>
+                          {item.quantity}
+                        </Text>
+                        
+                        <View style={styles.equipmentActions}>
+                          <TouchableOpacity 
+                            style={[styles.quantityButton, styles.addQuantityButton]} 
+                            onPress={() => {
+                              // Função para aumentar quantidade
+                              Alert.alert('Adicionar', 'Deseja adicionar mais uma unidade?', [
+                                { text: 'Cancelar', style: 'cancel' },
+                                { 
+                                  text: 'Confirmar', 
+                                  onPress: () => {
+                                    // Aqui você aumentaria a quantidade no backend
+                                    console.log(`Aumentando quantidade de ${item.name}`);
+                                    // Por enquanto, apenas um alerta de feedback
+                                    Alert.alert('Quantidade adicionada', `Agora há ${item.quantity + 1} unidades de ${item.name}`);
+                                  } 
+                                }
+                              ]);
+                            }}
+                          >
+                            <FontAwesome5 name="plus" size={14} color="#FFFFFF" />
+                          </TouchableOpacity>
+                          
+                          <TouchableOpacity 
+                            style={[styles.quantityButton, styles.removeQuantityButton]}
+                            onPress={() => {
+                              // Função para diminuir quantidade
+                              if (item.quantity > 0) {
+                                Alert.alert('Remover', 'Deseja remover uma unidade?', [
+                                  { text: 'Cancelar', style: 'cancel' },
+                                  { 
+                                    text: 'Confirmar', 
+                                    onPress: () => {
+                                      // Aqui você diminuiria a quantidade no backend
+                                      console.log(`Diminuindo quantidade de ${item.name}`);
+                                      // Por enquanto, apenas um alerta de feedback
+                                      Alert.alert('Quantidade removida', `Agora há ${item.quantity - 1} unidades de ${item.name}`);
+                                    } 
+                                  }
+                                ]);
+                              }
+                            }}
+                          >
+                            <FontAwesome5 name="minus" size={14} color="#FFFFFF" />
+                          </TouchableOpacity>
+                        </View>
+                      </View>
+                    </View>
+                  ))}
+                  
+                  <View style={styles.historyContainer}>
+                    <Text style={[styles.historyTitle, { color: textColor }]}>
+                      Histórico de Transferências
+                    </Text>
+                    
+                    {transfers && transfers.length > 0 ? (
+                      transfers.map((transfer, index) => (
+                        <View 
+                          key={index} 
+                          style={[styles.transferItem, { backgroundColor: cardBackgroundColor }]}
+                        >
+                          <View style={styles.transferHeader}>
+                            <View style={styles.transferTypeContainer}>
+                              <FontAwesome5 name="home" size={14} color="#FFC107" />
+                              <Text style={[styles.transferType, { color: textColor }]}>
+                                {transfer.productName}
+                              </Text>
+                            </View>
+                            <Text style={[styles.transferDate, { color: secondaryTextColor }]}>
+                              {formatDate(transfer.date)}
+                            </Text>
+                          </View>
+                          
+                          <View style={styles.transferDirection}>
+                            <Text style={[styles.transferLocation, { color: secondaryTextColor }]}>
+                              {transfer.fromLocation}
+                            </Text>
+                            <MaterialCommunityIcons name="arrow-right" size={16} color={secondaryTextColor} />
+                            <Text style={[styles.transferLocation, { color: secondaryTextColor }]}>
+                              {transfer.toLocation}
+                            </Text>
+                          </View>
+                          
+                          <Text style={[styles.transferQuantity, { color: textColor }]}>
+                            {transfer.quantity} unidades
+                          </Text>
+                          
+                          {transfer.notes && (
+                            <Text style={[styles.transferNotes, { color: secondaryTextColor }]}>
+                              Notas: {transfer.notes}
+                            </Text>
+                          )}
+                        </View>
+                      ))
+                    ) : (
+                      <View style={[styles.emptyTransfers, { backgroundColor: cardBackgroundColor }]}>
+                        <Text style={[styles.emptyTransfersText, { color: secondaryTextColor }]}>
+                          Nenhuma transferência registrada
+                        </Text>
+                      </View>
+                    )}
                   </View>
-                ))
+                </>
               )}
             </View>
           )}
@@ -665,6 +819,14 @@ const styles = StyleSheet.create({
     padding: scale(16),
     marginBottom: scale(16),
   },
+  equipmentIconContainer: {
+    width: scale(34),
+    height: scale(34),
+    borderRadius: scale(17),
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   equipmentInfo: {
     flex: 1,
   },
@@ -672,21 +834,92 @@ const styles = StyleSheet.create({
     fontSize: scale(16),
     fontWeight: '500',
   },
-  equipmentQuantity: {
-    fontSize: scale(14),
+  equipmentCode: {
+    fontSize: scale(12),
     marginTop: scale(4),
   },
   equipmentNotes: {
     fontSize: scale(12),
     marginTop: scale(4),
   },
-  equipmentActionButton: {
+  quantityContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  equipmentQuantityValue: {
+    fontSize: scale(14),
+    fontWeight: '500',
+  },
+  equipmentActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  quantityButton: {
     width: scale(34),
     height: scale(34),
     borderRadius: scale(17),
-    backgroundColor: 'rgba(244, 67, 54, 0.1)',
+    backgroundColor: 'rgba(255,255,255,0.2)',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  addQuantityButton: {
+    backgroundColor: '#4CAF50',
+  },
+  removeQuantityButton: {
+    backgroundColor: '#F44336',
+  },
+  historyContainer: {
+    marginTop: scale(16),
+    padding: scale(16),
+  },
+  historyTitle: {
+    fontSize: scale(16),
+    fontWeight: 'bold',
+    marginBottom: scale(8),
+  },
+  transferItem: {
+    padding: scale(16),
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.1)',
+  },
+  transferHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  transferTypeContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  transferType: {
+    fontSize: scale(14),
+    fontWeight: '500',
+  },
+  transferDate: {
+    fontSize: scale(12),
+  },
+  transferDirection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  transferLocation: {
+    fontSize: scale(14),
+  },
+  transferQuantity: {
+    fontSize: scale(14),
+    fontWeight: '500',
+  },
+  transferNotes: {
+    fontSize: scale(12),
+  },
+  emptyTransfers: {
+    padding: scale(16),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  emptyTransfersText: {
+    fontSize: scale(14),
+    textAlign: 'center',
   },
   tasksHeader: {
     flexDirection: 'row',
