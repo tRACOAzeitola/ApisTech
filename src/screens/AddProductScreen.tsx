@@ -9,7 +9,8 @@ import {
   Alert,
   SafeAreaView,
   KeyboardAvoidingView,
-  Platform
+  Platform,
+  Modal
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { RootStackParamList } from '../types';
@@ -227,20 +228,31 @@ const AddProductScreen: React.FC = () => {
     setNotas('');
   };
 
+  // Estado para controlar a visibilidade do modal no Android
+  const [modalVisible, setModalVisible] = useState(false);
+  
   /**
    * Abre o seletor de categorias
    */
   const handleCategorySelect = () => {
-    Alert.alert(
-      'Selecionar Categoria',
-      'Escolha uma categoria:',
-      CATEGORIAS.map((cat, index) => ({
-        text: cat,
-        onPress: () => {
-          setCategoria(cat);
-        }
-      }))
-    );
+    // Usando um modal mais adequado para listar todas as categorias
+    if (Platform.OS === 'android') {
+      // No Android, criar um AlertDialog com botões para cada categoria
+      setModalVisible(true);
+    } else {
+      // No iOS, o ActionSheet suporta bem múltiplas opções
+      Alert.alert(
+        'Selecionar Categoria',
+        'Escolha uma categoria:',
+        [
+          ...CATEGORIAS.map((cat) => ({
+            text: cat,
+            onPress: () => setCategoria(cat)
+          })),
+          { text: 'Cancelar', style: 'cancel' }
+        ]
+      );
+    }
   };
 
   /**
@@ -286,22 +298,14 @@ const AddProductScreen: React.FC = () => {
 
   // Updated colors based on CategoryProductsScreen
   const backgroundColor = isDark ? '#000000' : '#F2F2F7';
-  const cardBackgroundColor = isDark 
-    ? '#1A1A1A'
-    : '#FFFFFF';
-  const textColor = isDark 
-    ? '#FFFFFF'
-    : '#000000';
-  const secondaryTextColor = isDark 
-    ? '#CCCCCC' 
-    : '#666666';
+  const cardBackgroundColor = isDark ? '#1A1A1A' : '#FFFFFF';
+  const textColor = isDark ? '#FFFFFF' : '#000000';
+  const secondaryTextColor = isDark ? '#CCCCCC' : '#666666';
   const accentColor = '#007AFF';  // iOS blue color instead of yellow
-  const borderColor = isDark
-    ? 'rgba(255, 255, 255, 0.1)'
-    : 'rgba(0, 0, 0, 0.1)';
+  const borderColor = isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)';
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor }]}>
+    <SafeAreaView style={{ flex: 1, backgroundColor }}>
       {/* Cabeçalho com botões de ação */}
       <LinearGradient
         colors={isDark 
@@ -312,7 +316,7 @@ const AddProductScreen: React.FC = () => {
         end={{ x: 0, y: 1 }}
       >
         <TouchableOpacity onPress={handleCancel} style={styles.headerButton}>
-          <Text style={[styles.cancelButtonText, { color: isDark ? '#FFF8E1' : '#5D2E0D' }]}>Cancelar</Text>
+          <Text style={[styles.headerCancelText, { color: isDark ? '#FFF8E1' : '#5D2E0D' }]}>Cancelar</Text>
         </TouchableOpacity>
         
         <Text style={[styles.headerTitle, { color: textColor }]}>Adicionar Produto</Text>
@@ -473,6 +477,54 @@ const AddProductScreen: React.FC = () => {
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
+      
+      {/* Modal para seleção de categoria no Android */}
+      <Modal
+        visible={modalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContainer, { backgroundColor: cardBackgroundColor }]}>
+            <Text style={[styles.modalTitle, { color: textColor }]}>
+              Selecionar Categoria
+            </Text>
+            <Text style={[styles.modalSubtitle, { color: secondaryTextColor }]}>
+              Escolha uma categoria:
+            </Text>
+            
+            <ScrollView style={styles.categoryList}>
+              {CATEGORIAS.map((cat, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={[
+                    styles.categoryItem,
+                    { borderBottomColor: borderColor }
+                  ]}
+                  onPress={() => {
+                    setCategoria(cat);
+                    setModalVisible(false);
+                  }}
+                >
+                  <Text style={[styles.categoryItemText, { color: textColor }]}>
+                    {cat}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            
+            <TouchableOpacity
+              style={styles.cancelButton}
+              onPress={() => setModalVisible(false)}
+            >
+              <Text style={[styles.cancelButtonText, { color: accentColor }]}>
+                Cancelar
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 };
@@ -500,7 +552,7 @@ const styles = StyleSheet.create({
     fontSize: scale(20),
     fontWeight: 'bold',
   },
-  cancelButtonText: {
+  headerCancelText: {
     fontSize: scale(16),
   },
   saveButtonText: {
@@ -578,7 +630,47 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: scale(16),
     fontWeight: 'bold',
-  }
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContainer: {
+    padding: scale(20),
+    borderRadius: scale(12),
+    width: '80%',
+    maxHeight: '80%',
+  },
+  modalTitle: {
+    fontSize: scale(18),
+    fontWeight: 'bold',
+    marginBottom: scale(16),
+  },
+  modalSubtitle: {
+    fontSize: scale(16),
+    marginBottom: scale(16),
+  },
+  categoryList: {
+    maxHeight: scale(300),
+  },
+  categoryItem: {
+    padding: scale(16),
+    borderBottomWidth: 1,
+  },
+  categoryItemText: {
+    fontSize: scale(16),
+  },
+  cancelButton: {
+    padding: scale(16),
+    alignItems: 'center',
+    marginTop: scale(8),
+  },
+  cancelButtonText: {
+    fontSize: scale(16),
+    fontWeight: 'bold',
+  },
 });
 
 export default AddProductScreen;
