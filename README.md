@@ -217,7 +217,7 @@ Os dados são armazenados localmente utilizando AsyncStorage e sincronizados com
 
 ## 👨‍💻 Autor
 
-Desenvolvido por [David Oliveira](linkedin.com/in/david-oliveira-8899412b).
+Desenvolvido por [David Oliveira](https://linkedin.com/in/david-oliveira-8899412b).
 
 ## 🤝 Contribuição
 
