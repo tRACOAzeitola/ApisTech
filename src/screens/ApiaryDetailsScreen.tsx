@@ -77,18 +77,17 @@ const MOCK_APIARY: Apiary = {
 
 // Dados de exemplo para equipamentos
 const MOCK_EQUIPMENT: Equipment[] = [
-  { id: '1', name: 'Colmeia Langstroth', quantity: 8, unit: 'unidades' },
-  { id: '2', name: 'Melgueira', quantity: 16, unit: 'unidades' },
-  { id: '3', name: 'Fumigador', quantity: 1, unit: 'unidade' },
-  { id: '4', name: 'Macacão de apicultor', quantity: 2, unit: 'unidades' }
+  { id: 'COL-LAN', name: 'Colmeia Langstroth', quantity: 8, unit: 'unidades' },
+  { id: 'COL-REV', name: 'Colmeia Reversível', quantity: 4, unit: 'unidades' },
+  { id: 'COL-ALC', name: 'Alças', quantity: 16, unit: 'unidades' }
 ];
 
 // Mock data para transferências
 const MOCK_TRANSFERS: Transfer[] = [
   { 
     id: '1',
-    productId: 'COL-COL',
-    productName: 'Colmeias',
+    productId: 'COL-LAN',
+    productName: 'Colmeia Langstroth',
     quantity: 5,
     fromLocation: 'Armazém',
     toLocation: 'Apiário Sul',
@@ -196,10 +195,55 @@ const ApiaryDetailsScreen: React.FC = () => {
 
   // Função para adicionar equipamento
   const handleAddEquipment = () => {
+    // Apenas permite adicionar colmeias e alças
     Alert.alert(
-      'Em desenvolvimento',
-      'A funcionalidade de adicionar equipamento está em desenvolvimento.',
-      [{ text: 'OK' }]
+      'Adicionar Equipamento',
+      'Selecione o tipo de equipamento:',
+      [
+        { 
+          text: 'Colmeia Langstroth', 
+          onPress: () => {
+            Alert.alert('Quantidade', 'Digite a quantidade:', [
+              { text: 'Cancelar', style: 'cancel' },
+              { 
+                text: 'Adicionar', 
+                onPress: () => {
+                  Alert.alert('Sucesso', 'Colmeia Langstroth adicionada ao apiário.');
+                }
+              }
+            ]);
+          }
+        },
+        { 
+          text: 'Colmeia Reversível', 
+          onPress: () => {
+            Alert.alert('Quantidade', 'Digite a quantidade:', [
+              { text: 'Cancelar', style: 'cancel' },
+              { 
+                text: 'Adicionar', 
+                onPress: () => {
+                  Alert.alert('Sucesso', 'Colmeia Reversível adicionada ao apiário.');
+                }
+              }
+            ]);
+          }
+        },
+        { 
+          text: 'Alças', 
+          onPress: () => {
+            Alert.alert('Quantidade', 'Digite a quantidade:', [
+              { text: 'Cancelar', style: 'cancel' },
+              { 
+                text: 'Adicionar', 
+                onPress: () => {
+                  Alert.alert('Sucesso', 'Alças adicionadas ao apiário.');
+                }
+              }
+            ]);
+          }
+        },
+        { text: 'Cancelar', style: 'cancel' }
+      ]
     );
   };
   
@@ -336,7 +380,7 @@ const ApiaryDetailsScreen: React.FC = () => {
             onPress={() => setActiveTab('equipment')}
           >
             <FontAwesome5 
-              name="tools" 
+              name="home" 
               size={16} 
               color={activeTab === 'equipment' ? accentColor : secondaryTextColor} 
             />
@@ -347,7 +391,7 @@ const ApiaryDetailsScreen: React.FC = () => {
                 { color: activeTab === 'equipment' ? accentColor : secondaryTextColor }
               ]}
             >
-              Equipamentos
+              Colmeias
             </Text>
           </TouchableOpacity>
           
@@ -455,7 +499,7 @@ const ApiaryDetailsScreen: React.FC = () => {
           {activeTab === 'equipment' && (
             <View>
               <View style={[styles.equipmentHeader, { backgroundColor: cardBackgroundColor }]}>
-                <Text style={[styles.equipmentHeaderTitle, { color: textColor }]}>Equipamentos</Text>
+                <Text style={[styles.equipmentHeaderTitle, { color: textColor }]}>Colmeias e Alças</Text>
                 <TouchableOpacity style={styles.addButton} onPress={handleAddEquipment}>
                   <FontAwesome5 name="plus" size={16} color="#FFFFFF" />
                 </TouchableOpacity>
@@ -476,12 +520,14 @@ const ApiaryDetailsScreen: React.FC = () => {
                       style={[styles.equipmentCard, { backgroundColor: cardBackgroundColor }]}
                     >
                       <View style={styles.equipmentIconContainer}>
-                        {item.name.toLowerCase().includes('colmeia') ? (
+                        {item.id === 'COL-LAN' ? (
                           <FontAwesome5 name="home" size={20} color="#FFC107" />
-                        ) : item.name.toLowerCase().includes('alça') ? (
-                          <MaterialCommunityIcons name="layers" size={22} color="#FF9800" />
+                        ) : item.id === 'COL-REV' ? (
+                          <FontAwesome5 name="home" size={20} color="#FF9800" />
+                        ) : item.id === 'COL-ALC' ? (
+                          <MaterialCommunityIcons name="layers" size={22} color="#8BC34A" />
                         ) : (
-                          <FontAwesome5 name="tools" size={20} color="#8BC34A" />
+                          <FontAwesome5 name="box" size={20} color="#78909C" />
                         )}
                       </View>
                       
