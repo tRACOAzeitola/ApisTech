@@ -6,7 +6,9 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
-  ActivityIndicator
+  ActivityIndicator,
+  Modal,
+  TextInput
 } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -116,6 +118,9 @@ const ApiaryDetailsScreen: React.FC = () => {
   const [transfers, setTransfers] = useState<Transfer[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'info' | 'equipment' | 'tasks'>('info');
+  const [modalVisible, setModalVisible] = useState(false);
+  const [editingEquipment, setEditingEquipment] = useState<Equipment | null>(null);
+  const [newQuantity, setNewQuantity] = useState('');
   
   // Carregar dados do apiário
   useEffect(() => {
@@ -278,6 +283,35 @@ const ApiaryDetailsScreen: React.FC = () => {
       </TouchableOpacity>
     </View>
   );
+
+  // Função para atualizar a quantidade
+  const updateEquipmentQuantity = () => {
+    if (editingEquipment && newQuantity) {
+      const quantity = parseInt(newQuantity);
+      if (!isNaN(quantity) && quantity >= 0) {
+        // Atualiza o equipamento localmente (em produção, isso seria uma chamada à API)
+        const updatedEquipment = equipment.map(item => 
+          item.id === editingEquipment.id 
+            ? { ...item, quantity } 
+            : item
+        );
+        setEquipment(updatedEquipment);
+        
+        // Feedback ao usuário
+        Alert.alert(
+          'Quantidade Atualizada', 
+          `A quantidade de ${editingEquipment.name} foi atualizada para ${quantity} unidades.`
+        );
+        
+        // Fecha o modal e reseta estados
+        setModalVisible(false);
+        setEditingEquipment(null);
+        setNewQuantity('');
+      } else {
+        Alert.alert('Erro', 'Por favor, insira um número válido.');
+      }
+    }
+  };
 
   if (loading) {
     return (
@@ -552,51 +586,17 @@ const ApiaryDetailsScreen: React.FC = () => {
                           {item.quantity}
                         </Text>
                         
-                        <View style={styles.equipmentActions}>
-                          <TouchableOpacity 
-                            style={[styles.quantityButton, styles.addQuantityButton]} 
-                            onPress={() => {
-                              // Função para aumentar quantidade
-                              Alert.alert('Adicionar', 'Deseja adicionar mais uma unidade?', [
-                                { text: 'Cancelar', style: 'cancel' },
-                                { 
-                                  text: 'Confirmar', 
-                                  onPress: () => {
-                                    // Aqui você aumentaria a quantidade no backend
-                                    console.log(`Aumentando quantidade de ${item.name}`);
-                                    // Por enquanto, apenas um alerta de feedback
-                                    Alert.alert('Quantidade adicionada', `Agora há ${item.quantity + 1} unidades de ${item.name}`);
-                                  } 
-                                }
-                              ]);
-                            }}
-                          >
-                            <FontAwesome5 name="plus" size={14} color="#FFFFFF" />
-                          </TouchableOpacity>
-                          
-                          <TouchableOpacity 
-                            style={[styles.quantityButton, styles.removeQuantityButton]}
-                            onPress={() => {
-                              // Função para diminuir quantidade
-                              if (item.quantity > 0) {
-                                Alert.alert('Remover', 'Deseja remover uma unidade?', [
-                                  { text: 'Cancelar', style: 'cancel' },
-                                  { 
-                                    text: 'Confirmar', 
-                                    onPress: () => {
-                                      // Aqui você diminuiria a quantidade no backend
-                                      console.log(`Diminuindo quantidade de ${item.name}`);
-                                      // Por enquanto, apenas um alerta de feedback
-                                      Alert.alert('Quantidade removida', `Agora há ${item.quantity - 1} unidades de ${item.name}`);
-                                    } 
-                                  }
-                                ]);
-                              }
-                            }}
-                          >
-                            <FontAwesome5 name="minus" size={14} color="#FFFFFF" />
-                          </TouchableOpacity>
-                        </View>
+                        <TouchableOpacity 
+                          style={[styles.editQuantityButton]} 
+                          onPress={() => {
+                            // Abrir modal para edição
+                            setEditingEquipment(item);
+                            setNewQuantity(item.quantity.toString());
+                            setModalVisible(true);
+                          }}
+                        >
+                          <FontAwesome5 name="edit" size={14} color="#FFFFFF" />
+                        </TouchableOpacity>
                       </View>
                     </View>
                   ))}
@@ -678,6 +678,65 @@ const ApiaryDetailsScreen: React.FC = () => {
           )}
         </ScrollView>
       </View>
+      
+      {/* Modal para edição de quantidade */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(false);
+          setEditingEquipment(null);
+        }}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { backgroundColor: cardBackgroundColor }]}>
+            <Text style={[styles.modalTitle, { color: textColor }]}>
+              Editar Quantidade
+            </Text>
+            
+            {editingEquipment && (
+              <Text style={[styles.modalSubtitle, { color: secondaryTextColor }]}>
+                {editingEquipment.name}
+              </Text>
+            )}
+            
+            <TextInput
+              style={[styles.quantityInput, { 
+                color: textColor,
+                borderColor: isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
+                backgroundColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'
+              }]}
+              placeholder="Digite a nova quantidade"
+              placeholderTextColor={secondaryTextColor}
+              keyboardType="number-pad"
+              value={newQuantity}
+              onChangeText={setNewQuantity}
+              autoFocus={true}
+            />
+            
+            <View style={styles.modalButtons}>
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.cancelButton]} 
+                onPress={() => {
+                  setModalVisible(false);
+                  setEditingEquipment(null);
+                  setNewQuantity('');
+                }}
+              >
+                <Text style={styles.modalButtonText}>Cancelar</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[styles.modalButton, styles.confirmButton]} 
+                onPress={updateEquipmentQuantity}
+              >
+                <Text style={styles.modalButtonText}>Confirmar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ScreenLayout>
   );
 };
@@ -896,23 +955,14 @@ const styles = StyleSheet.create({
     fontSize: scale(14),
     fontWeight: '500',
   },
-  equipmentActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  quantityButton: {
+  editQuantityButton: {
     width: scale(34),
     height: scale(34),
     borderRadius: scale(17),
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: '#2196F3',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  addQuantityButton: {
-    backgroundColor: '#4CAF50',
-  },
-  removeQuantityButton: {
-    backgroundColor: '#F44336',
+    marginLeft: scale(10),
   },
   historyContainer: {
     marginTop: scale(16),
@@ -978,6 +1028,58 @@ const styles = StyleSheet.create({
   tasksHeaderTitle: {
     fontSize: scale(16),
     fontWeight: 'bold',
+  },
+  modalOverlay: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    borderRadius: scale(12),
+    padding: scale(20),
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: scale(18),
+    fontWeight: 'bold',
+    marginBottom: scale(8),
+  },
+  modalSubtitle: {
+    fontSize: scale(16),
+    marginBottom: scale(20),
+  },
+  quantityInput: {
+    width: '100%',
+    borderWidth: 1,
+    borderRadius: scale(8),
+    padding: scale(12),
+    fontSize: scale(16),
+    marginBottom: scale(20),
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+  modalButton: {
+    flex: 1,
+    padding: scale(12),
+    borderRadius: scale(8),
+    alignItems: 'center',
+    marginHorizontal: scale(6),
+  },
+  cancelButton: {
+    backgroundColor: '#F44336',
+  },
+  confirmButton: {
+    backgroundColor: '#4CAF50',
+  },
+  modalButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: scale(14),
   },
 });
 
