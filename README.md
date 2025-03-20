@@ -19,6 +19,8 @@ Inventario é uma aplicação de gestão de inventário e apiários específica 
 - 📝 **Histórico de movimentações** para rastreamento completo
 - 🐝 **Informações detalhadas dos apiários** incluindo localização, flora predominante e equipamentos
 - 📋 **Gestão de tarefas por apiário** para planejamento eficiente
+- 🔢 **Edição manual de quantidades** para controle preciso de equipamentos nos apiários
+- 🔄 **Transferência simplificada** de equipamentos entre armazém e apiários
 - 📄 **Geração de relatórios em PDF** para inventário, mel e produtos em baixo estoque
 - ➕ **Interface melhorada para adição de produtos** com organização por seções
 - 🔄 **Sincronização com Firebase** para backup e acesso em múltiplos dispositivos
@@ -229,7 +231,19 @@ Contribuições são bem-vindas! Sente-te à vontade para abrir issues ou enviar
 
 ## 📝 Changelog
 
-### Versão 1.3.2 (Atual)
+### Versão 1.3.3 (Atual)
+- Implementada gestão manual de quantidade para os equipamentos nos apiários
+- Substituição dos botões + e - por um botão de edição com entrada direta de valores
+- Padronizada a exibição de equipamentos entre iOS e Android
+- Restringidos os tipos de equipamentos para apiários (apenas Colmeia Langstroth, Colmeia Reversível e Alças)
+- Adicionada visualização de histórico de transferências de equipamentos
+- Corrigida a exibição do código do equipamento junto ao nome
+- Adicionados ícones específicos para cada tipo de colmeia ou alça
+- Reorganização do layout para melhor visualização em telas menores
+- Implementação de modal para entrada manual de quantidades
+- Feedback visual aprimorado durante a edição de quantidade de equipamentos
+
+### Versão 1.3.2
 - Implementada entrada manual de quantidade para equipamentos nos apiários
 - Adicionado suporte para transferência de equipamentos entre apiário e armazém
 - Padronizada a interface entre iOS e Android para garantir consistência visual
