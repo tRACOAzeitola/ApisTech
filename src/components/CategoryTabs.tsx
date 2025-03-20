@@ -1,9 +1,10 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Platform, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
+import { scale } from '../utils/responsive';
 
 // Definimos o tipo para as rotas
 type RootStackParamList = {
@@ -88,6 +89,7 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({
   onCategoryChange = () => {} 
 }) => {
   const navigation = useNavigation<NavigationProp>();
+  const screenWidth = Dimensions.get('window').width;
 
   const handleTabPress = (categoryId: string) => {
     // Atualizar estado de categoria ativa
@@ -121,32 +123,43 @@ const CategoryTabs: React.FC<CategoryTabsProps> = ({
   const getIconComponent = (iconName: string, categoryId: CategoryTabId, isActive: boolean) => {
     // Use a cor específica da categoria quando ativa, senão use cinza
     const color = isActive ? CATEGORY_COLORS[categoryId] : '#8E8E93';
-    return <MaterialCommunityIcons name={iconName} size={20} color={color} />;
+    return <MaterialCommunityIcons name={iconName} size={scale(18)} color={color} />;
+  };
+
+  const renderTabItem = ({ item }: { item: typeof CATEGORY_TABS[0] }) => {
+    const isActive = item.id === activeCategory;
+    return (
+      <TouchableOpacity 
+        key={item.id}
+        style={[styles.tabItem, isActive && styles.tabItemActive]}
+        onPress={() => handleTabPress(item.id)}
+        activeOpacity={0.7}
+      >
+        {getIconComponent(item.icon, item.id as CategoryTabId, isActive)}
+        <Text 
+          style={[styles.tabText, isActive && styles.tabTextActive]}
+          numberOfLines={1}
+          ellipsizeMode="tail"
+        >
+          {item.name}
+        </Text>
+      </TouchableOpacity>
+    );
   };
 
   return (
     <View style={styles.tabContainer}>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        {CATEGORY_TABS.map((category) => {
-          const isActive = category.id === activeCategory;
-          return (
-            <TouchableOpacity 
-              key={category.id}
-              style={[styles.tabItem, isActive && styles.tabItemActive]}
-              onPress={() => handleTabPress(category.id)}
-            >
-              {getIconComponent(category.icon, category.id as CategoryTabId, isActive)}
-              <Text 
-                style={[styles.tabText, isActive && styles.tabTextActive]}
-                numberOfLines={1}
-                ellipsizeMode="tail"
-              >
-                {category.name}
-              </Text>
-            </TouchableOpacity>
-          );
-        })}
-      </ScrollView>
+      <FlatList
+        data={CATEGORY_TABS}
+        renderItem={renderTabItem}
+        keyExtractor={(item) => item.id}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.listContent}
+        snapToAlignment="center"
+        snapToInterval={Platform.OS === 'android' ? scale(70) : undefined}
+        decelerationRate="fast"
+      />
     </View>
   );
 };
@@ -156,26 +169,37 @@ const styles = StyleSheet.create({
     backgroundColor: '#1C1C1E',
     borderTopWidth: 1,
     borderTopColor: '#2C2C2E',
-    paddingVertical: 6,
+    paddingVertical: scale(6),
+    width: '100%',
+  },
+  listContent: {
+    paddingHorizontal: Platform.OS === 'android' ? scale(8) : scale(4),
+    alignItems: 'center',
   },
   tabItem: {
-    paddingHorizontal: 6,
-    paddingVertical: 6,
+    paddingHorizontal: scale(6),
+    paddingVertical: scale(6),
     alignItems: 'center',
     justifyContent: 'center',
-    minWidth: 60,
-    marginHorizontal: 1,
+    minWidth: scale(60),
+    width: Platform.OS === 'android' ? scale(70) : scale(60),
+    marginHorizontal: Platform.OS === 'android' ? scale(4) : scale(2),
+    borderRadius: Platform.OS === 'android' ? scale(4) : 0,
+    backgroundColor: Platform.OS === 'android' ? 'rgba(30, 30, 30, 0.6)' : 'transparent',
   },
   tabItemActive: {
     borderBottomWidth: 2,
     borderBottomColor: '#007AFF',
+    ...(Platform.OS === 'android' && {
+      backgroundColor: 'rgba(0, 122, 255, 0.1)',
+    }),
   },
   tabText: {
     color: '#8E8E93',
-    fontSize: 10,
-    marginTop: 2,
+    fontSize: scale(10),
+    marginTop: scale(2),
     textAlign: 'center',
-    width: 60,
+    width: Platform.OS === 'android' ? scale(65) : scale(60),
   },
   tabTextActive: {
     color: '#FFFFFF',
