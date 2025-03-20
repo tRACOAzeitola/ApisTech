@@ -47,7 +47,6 @@ inventario/
 ├── ios/                       # Configurações nativas do iOS
 ├── src/                       # Código fonte principal
 │   ├── @types/                # Tipos personalizados para bibliotecas
-│   ├── components/            # Componentes reutilizáveis
 │   │   ├── AnimatedCard.tsx
 │   │   ├── CategoryCard.tsx
 │   │   ├── Menu.tsx
@@ -164,7 +163,10 @@ Ecrã dedicado à gestão de apiários, permitindo visualizar, adicionar e geren
 - Filtro de pesquisa para encontrar apiários específicos
 - Estatísticas gerais do total de apiários e colmeias
 - Detalhes de cada apiário incluindo localização, flora predominante e contatos
-- Gerenciamento de equipamentos por apiário
+- Gerenciamento de equipamentos por apiário (Colmeia Langstroth, Colmeia Reversível e Alças)
+- Sistema de transferência de equipamentos entre armazém e apiários
+- Gestão de quantidades com entrada manual de valores
+- Histórico detalhado de transferências de equipamentos
 - Planejamento de tarefas específicas para cada apiário
 
 ### Painel (Redesenhado)
@@ -227,7 +229,17 @@ Contribuições são bem-vindas! Sente-te à vontade para abrir issues ou enviar
 
 ## 📝 Changelog
 
-### Versão 1.3.1 (Atual)
+### Versão 1.3.2 (Atual)
+- Implementada entrada manual de quantidade para equipamentos nos apiários
+- Adicionado suporte para transferência de equipamentos entre apiário e armazém
+- Padronizada a interface entre iOS e Android para garantir consistência visual
+- Adicionada visualização de detalhes de produtos e opção de transferência em Android
+- Restrição de equipamentos para apiários (apenas Colmeia Langstroth, Colmeia Reversível e Alças)
+- Melhoria no sistema de seleção de categorias em dispositivos Android
+- Interface de edição de quantidades simplificada com modal para entrada direta
+- Ajustes visuais para adaptar a todos os tamanhos de tela e densidades de pixel
+
+### Versão 1.3.1
 - Alterado esquema de cores para tons de azul em toda a aplicação
 - Ajustada a posição dos ícones na barra de navegação para melhor usabilidade
 - Corrigido comportamento do botão Home para retornar à tela principal (MainScreen)
