@@ -1,4 +1,4 @@
-# Inventario - Aplicação de Gestão de Inventário para Apicultores
+# Inventario - Aplicação de Gestão de Inventário para Apicultores (Atualizado)
 
 Uma aplicação móvel moderna desenvolvida com React Native para ajudar apicultores a gerir o seu inventário de forma eficiente e controlar seus apiários.
 
