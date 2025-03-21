@@ -6442,6 +6442,11 @@ react-native-fs@^2.20.0:
     hoist-non-react-statics "^3.3.0"
     invariant "^2.2.4"
 
+react-native-haptic-feedback@^2.3.3:
+  version "2.3.3"
+  resolved "https://registry.npmjs.org/react-native-haptic-feedback/-/react-native-haptic-feedback-2.3.3.tgz"
+  integrity sha512-svS4D5PxfNv8o68m9ahWfwje5NqukM3qLS48+WTdhbDkNUkOhP9rDfDSRHzlhk4zq+ISjyw95EhLeh8NkKX5vQ==
+
 react-native-html-to-pdf@^0.12.0:
   version "0.12.0"
   resolved "https://registry.npmjs.org/react-native-html-to-pdf/-/react-native-html-to-pdf-0.12.0.tgz"
@@ -6552,7 +6557,7 @@ react-native-windows@*, react-native-windows@>=0.62:
     ws "^6.2.3"
     yargs "^17.6.2"
 
-react-native@*, "react-native@^0.0.0-0 || >=0.65 <1.0", react-native@^0.78.0, react-native@>=0.73.0, "react-native@>=0.8.0 || 0.8.0-rc || 0.8.0-rc.2 || 0.9.0-rc || 0.10.1", react-native@0.78.0:
+react-native@*, "react-native@^0.0.0-0 || >=0.65 <1.0", react-native@^0.78.0, react-native@>=0.60.0, react-native@>=0.73.0, "react-native@>=0.8.0 || 0.8.0-rc || 0.8.0-rc.2 || 0.9.0-rc || 0.10.1", react-native@0.78.0:
   version "0.78.0"
   resolved "https://registry.npmjs.org/react-native/-/react-native-0.78.0.tgz"
   integrity sha512-3PO4tNvCN6BdAKcoY70v1sLfxYCmDR4KS1VTY+kIBKy5Qznp27QNxL7zBQjvS6Jp91gc8N82QbysQrfBlwg9gQ==

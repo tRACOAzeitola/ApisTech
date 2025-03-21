@@ -91,6 +91,30 @@ const MOCK_APIARIES: Apiary[] = [
     lastInspection: '12/05/2023',
     nextTask: 'Substituição de rainha',
     nextTaskDate: '29/05/2023',
+  },
+  {
+    id: '5',
+    name: 'Apiário Norte',
+    location: 'Porto',
+    hiveCount: 14,
+    createdAt: new Date('2024-03-15'),
+    estimatedProduction: 380,
+    lastVisit: new Date('2024-05-18'),
+    lastInspection: '18/05/2023',
+    nextTask: 'Inspeção sanitária',
+    nextTaskDate: '02/06/2023',
+  },
+  {
+    id: '6',
+    name: 'Apiário Sul',
+    location: 'Faro',
+    hiveCount: 9,
+    createdAt: new Date('2024-01-25'),
+    estimatedProduction: 290,
+    lastVisit: new Date('2024-05-15'),
+    lastInspection: '15/05/2023',
+    nextTask: 'Divisão de colmeia',
+    nextTaskDate: '30/05/2023',
   }
 ];
 
@@ -250,82 +274,72 @@ const ApiariesScreen: React.FC = () => {
 
     return (
       <AnimatedCard
-        animationDelay={index * 100}
+        animationDelay={index * 50}
         animationType="slide"
         onPress={() => handleApiaryPress(item.id)}
         style={styles.cardContainer}
       >
         <View style={[styles.card, { backgroundColor: cardBackgroundColor }]}>
-          {/* Cabeçalho com nome, localização e status */}
+          {/* Cabeçalho simplificado */}
           <View style={styles.cardHeader}>
             <View style={styles.cardTitleContainer}>
-              <Text style={[styles.cardTitle, { color: textColor }]}>{item.name}</Text>
-              <Text style={[styles.cardSubtitle, { color: secondaryTextColor }]}>{item.location}</Text>
+              <Text style={[styles.cardTitle, { color: textColor }]} numberOfLines={1}>{item.name}</Text>
+              <Text style={[styles.cardSubtitle, { color: secondaryTextColor }]} numberOfLines={1}>{item.location}</Text>
             </View>
             <View style={[styles.statusIndicator, { backgroundColor: statusColor }]} />
           </View>
 
-          <View style={[styles.divider, { backgroundColor: borderColor }]} />
-
-          {/* Detalhes */}
+          {/* Detalhes simplificados */}
           <View style={styles.cardDetails}>
-            {/* Colmeias */}
-            <View style={styles.detailItem}>
-              <View style={styles.detailIconContainer}>
-                <FontAwesome5 name="home" size={16} color="#007AFF" />
+            {/* Linha 1: Colmeias e Flora */}
+            <View style={styles.detailRow}>
+              {/* Colmeias */}
+              <View style={styles.detailItem}>
+                <FontAwesome5 name="home" size={14} color="#007AFF" />
+                <Text style={[styles.detailValue, { color: textColor, marginLeft: scale(4) }]}>{item.hiveCount}</Text>
               </View>
-              <Text style={[styles.detailValue, { color: textColor }]}>{item.hiveCount}</Text>
-              <Text style={[styles.detailLabel, { color: secondaryTextColor }]}>Colmeias</Text>
+
+              {/* Flora */}
+              <View style={[styles.detailItem, { flex: 1, marginLeft: scale(8) }]}>
+                {item.floraTypes && item.floraTypes.length > 0 ? (
+                  <>
+                    <FontAwesome5 name="leaf" size={14} color="#8BC34A" />
+                    <Text 
+                      style={[styles.detailValue, { color: textColor, marginLeft: scale(4), flex: 1 }]} 
+                      numberOfLines={1}
+                    >
+                      {item.floraTypes.join(', ')}
+                    </Text>
+                  </>
+                ) : item.estimatedProduction ? (
+                  <>
+                    <FontAwesome5 name="chart-line" size={14} color="#42A5F5" />
+                    <Text style={[styles.detailValue, { color: textColor, marginLeft: scale(4) }]}>
+                      {item.estimatedProduction} kg
+                    </Text>
+                  </>
+                ) : (
+                  <>
+                    <FontAwesome5 name="leaf" size={14} color="#8BC34A" />
+                    <Text style={[styles.detailValue, { color: secondaryTextColor, marginLeft: scale(4) }]}>-</Text>
+                  </>
+                )}
+              </View>
             </View>
 
-            {/* Última visita */}
-            <View style={styles.detailItem}>
-              {item.lastVisit ? (
-                <>
-                  <Text style={[styles.detailValue, { color: textColor }]}>{formatDate(item.lastVisit)}</Text>
-                  <Text style={[styles.detailLabel, { color: secondaryTextColor }]}>Última visita</Text>
-                </>
-              ) : (
-                <>
-                  <Text style={[styles.detailValue, { color: secondaryTextColor }]}>N/A</Text>
-                  <Text style={[styles.detailLabel, { color: secondaryTextColor }]}>Nunca visitado</Text>
-                </>
-              )}
-            </View>
+            {/* Linha 2: Data e seta */}
+            <View style={[styles.detailRow, { marginTop: scale(4), justifyContent: 'space-between' }]}>
+              {/* Última visita */}
+              <View style={styles.detailItem}>
+                <FontAwesome5 name="calendar" size={14} color="#FF9500" />
+                <Text style={[styles.detailValue, { color: textColor, marginLeft: scale(4) }]}>
+                  {item.lastVisit ? formatDate(item.lastVisit) : 'N/A'}
+                </Text>
+              </View>
 
-            {/* Flora ou produção */}
-            <View style={styles.detailItem}>
-              {item.floraTypes && item.floraTypes.length > 0 ? (
-                <>
-                  <View style={styles.detailIconContainer}>
-                    <FontAwesome5 name="leaf" size={16} color="#8BC34A" />
-                  </View>
-                  <Text 
-                    style={[styles.detailValue, { color: textColor }]} 
-                    numberOfLines={1}
-                  >
-                    {item.floraTypes.join(', ')}
-                  </Text>
-                  <Text style={[styles.detailLabel, { color: secondaryTextColor }]}>Flora</Text>
-                </>
-              ) : item.estimatedProduction ? (
-                <>
-                  <View style={styles.detailIconContainer}>
-                    <FontAwesome5 name="chart-line" size={16} color="#42A5F5" />
-                  </View>
-                  <Text style={[styles.detailValue, { color: textColor }]}>{item.estimatedProduction} kg</Text>
-                  <Text style={[styles.detailLabel, { color: secondaryTextColor }]}>Produção est.</Text>
-                </>
-              ) : (
-                <>
-                  <Text style={[styles.detailValue, { color: secondaryTextColor }]}>-</Text>
-                  <Text style={[styles.detailLabel, { color: secondaryTextColor }]}>Sem dados</Text>
-                </>
-              )}
+              {/* Ícone de seta */}
+              <FontAwesome5 name="chevron-right" size={14} color={secondaryTextColor} />
             </View>
-
-            {/* Ícone de seta */}
-            <FontAwesome5 name="chevron-right" size={16} color={secondaryTextColor} />
           </View>
         </View>
       </AnimatedCard>
@@ -398,6 +412,8 @@ const ApiariesScreen: React.FC = () => {
             keyExtractor={item => item.id}
             contentContainerStyle={styles.listContainer}
             showsVerticalScrollIndicator={false}
+            initialNumToRender={8}
+            windowSize={4}
           />
         ) : (
           <View style={styles.emptyContainer}>
@@ -495,62 +511,64 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   listContainer: {
-    padding: scale(16),
+    paddingHorizontal: scale(12),
+    paddingTop: scale(8),
     paddingBottom: scale(80), // Espaço para o botão FAB
   },
   cardContainer: {
-    marginBottom: scale(16),
+    marginBottom: scale(8),
   },
   card: {
-    borderRadius: scale(16),
+    borderRadius: scale(10),
     overflow: 'hidden',
-    padding: scale(16),
+    padding: scale(10),
   },
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: scale(12),
+    marginBottom: scale(6),
   },
   cardTitleContainer: {
     flex: 1,
+    marginRight: scale(4),
   },
   cardTitle: {
-    fontSize: scale(18),
+    fontSize: scale(14),
     fontWeight: 'bold',
   },
   cardSubtitle: {
-    fontSize: scale(14),
-    marginTop: scale(2),
+    fontSize: scale(12),
+    marginTop: scale(1),
   },
   statusIndicator: {
-    width: scale(10),
-    height: scale(10),
-    borderRadius: scale(5),
-    marginLeft: scale(8),
+    width: scale(6),
+    height: scale(6),
+    borderRadius: scale(3),
+    marginLeft: scale(4),
   },
   divider: {
     height: 1,
-    marginBottom: scale(12),
+    marginBottom: scale(6),
   },
   cardDetails: {
+    flexDirection: 'column',
+    marginTop: scale(6),
+  },
+  detailRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
   },
   detailItem: {
-    flex: 1,
+    flexDirection: 'row',
     alignItems: 'center',
   },
-  detailIconContainer: {
-    marginBottom: scale(4),
-  },
   detailValue: {
-    fontSize: scale(14),
+    fontSize: scale(12),
     fontWeight: '600',
   },
   detailLabel: {
-    fontSize: scale(12),
+    fontSize: scale(10),
   },
   fab: {
     position: 'absolute',

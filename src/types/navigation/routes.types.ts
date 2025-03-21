@@ -43,6 +43,21 @@ export type RootStackParamList = {
     categoryName: string;
   };
   
+  // Telas de transferência
+  TransferProduct: {
+    product: Product;
+    returnToWarehouse?: boolean;
+  };
+  
+  TransferEquipment: {
+    apiaryId: string;
+    apiaryName: string;
+    productId: string;
+    productName: string;
+    isReturn: boolean;
+    currentCount?: number;
+  };
+  
   // Outros
   MainTabs?: undefined;
 }; 

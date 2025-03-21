@@ -187,22 +187,17 @@ const AnimatedCard: React.FC<AnimatedCardProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 12,
+    borderRadius: 10,
     overflow: 'hidden',
   },
   touchable: {
     width: '100%',
-    height: '100%',
   },
   gradientContainer: {
-    flex: 1,
     width: '100%',
-    height: '100%',
   },
   contentContainer: {
-    flex: 1,
     width: '100%',
-    height: '100%',
   }
 });
 

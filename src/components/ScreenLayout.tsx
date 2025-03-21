@@ -62,7 +62,7 @@ const ScreenLayout: React.FC<ScreenLayoutProps> = ({
       navigation.goBack();
     }
   };
-
+ 
   return (
     <SafeAreaView style={[
       styles.container, 

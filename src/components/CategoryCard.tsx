@@ -10,6 +10,7 @@ import { scale, scaleWidth, scaleHeight } from '../utils/responsive';
 
 import { useTheme } from '../context/ThemeContext';
 import { ProductCategory } from '../types';
+import { Feedback, FeedbackType } from '../utils/feedback';
 
 interface CategoryCardProps {
   category: ProductCategory;
@@ -27,6 +28,15 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
   animationType = 'slide'
 }) => {
   const { colors, sizing, getShadow, isDark } = useTheme();
+
+  // Manipulador de pressionar com feedback tátil
+  const handlePress = () => {
+    // Fornece feedback tátil quando o usuário seleciona uma categoria
+    Feedback.triggerHaptic(FeedbackType.Selection);
+    
+    // Chama o callback original de onPress
+    onPress(category);
+  };
 
   // Função para mapear ícones consistentes para todas as categorias
   const getBetterIcon = () => {
@@ -85,7 +95,7 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
         styles.container,
         style
       ]}
-      onPress={() => onPress(category)}
+      onPress={handlePress}
       animationDelay={animationDelay}
       animationType={animationType}
       activeOpacity={0.7}
