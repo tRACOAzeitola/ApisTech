@@ -191,6 +191,21 @@ const CategoryProductsScreen: React.FC<CategoryProductsScreenProps> = ({ route, 
     );
   };
 
+  const handleTransferProduct = (product: Product) => {
+    if (product.location && product.location !== "Armazém") {
+      // Se o produto não estiver no armazém, oferecer opção de devolução
+      navigation.navigate('TransferProduct', {
+        product,
+        returnToWarehouse: true
+      });
+    } else {
+      // Se estiver no armazém, oferecer transferência para um apiário
+      navigation.navigate('TransferProduct', {
+        product
+      });
+    }
+  };
+
   const renderProductItem = ({ item }: any) => (
     <TouchableOpacity
       onPress={() => handleEditProduct(item)}
@@ -208,9 +223,6 @@ const CategoryProductsScreen: React.FC<CategoryProductsScreenProps> = ({ route, 
           <Text style={styles.lastUpdated}>
             Última atualização: {item.dateModified.toLocaleDateString()}
           </Text>
-          <Text style={styles.locationText}>
-            Localização: {item.location || 'Armazém'}
-          </Text>
         </View>
         
         <View style={styles.actionButtons}>
@@ -223,23 +235,6 @@ const CategoryProductsScreen: React.FC<CategoryProductsScreenProps> = ({ route, 
               name={Platform.OS === 'ios' ? 'square-edit-outline' : 'pencil'} 
               size={22} 
               color="#007AFF" 
-            />
-          </TouchableOpacity>
-          
-          <TouchableOpacity 
-            style={[styles.actionButton, styles.transferButton]}
-            onPress={() => {
-              navigation.navigate('TransferProduct', {
-                product: item,
-                returnToWarehouse: !!item.location && item.location !== 'Armazém'
-              });
-            }}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-          >
-            <MaterialCommunityIcons 
-              name={Platform.OS === 'ios' ? 'arrow-decision-outline' : 'swap-horizontal'} 
-              size={22} 
-              color="#4CD964" 
             />
           </TouchableOpacity>
           
@@ -421,11 +416,6 @@ const styles = StyleSheet.create({
     fontSize: scale(12),
     color: '#999999',
   },
-  locationText: {
-    fontSize: scale(12),
-    color: '#CCCCCC',
-    marginBottom: scale(4),
-  },
   actionButtons: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -439,9 +429,6 @@ const styles = StyleSheet.create({
         borderRadius: scale(6),
       },
     }),
-  },
-  transferButton: {
-    marginLeft: scale(16),
   },
   deleteButton: {
     marginLeft: scale(16),

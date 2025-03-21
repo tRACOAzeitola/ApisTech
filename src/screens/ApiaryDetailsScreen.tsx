@@ -29,6 +29,7 @@ interface Apiary {
   name: string;
   location: string;
   hiveCount: number;
+  superCount?: number;
   createdAt: Date;
   lastVisit?: Date;
   notes?: string;
@@ -49,24 +50,13 @@ interface Equipment {
   notes?: string;
 }
 
-// Interface para Transferência
-interface Transfer {
-  id: string;
-  productId: string;
-  productName: string;
-  quantity: number;
-  fromLocation: string;
-  toLocation: string;
-  date: Date;
-  notes?: string;
-}
-
 // Dados de exemplo para um apiário
 const MOCK_APIARY: Apiary = {
   id: '1',
   name: 'Apiário Sul',
   location: 'Serra da Estrela',
   hiveCount: 12,
+  superCount: 24,
   createdAt: new Date('2024-01-15'),
   lastVisit: new Date('2024-05-10'),
   floraTypes: ['Eucalipto', 'Silvestre'],
@@ -118,9 +108,6 @@ const ApiaryDetailsScreen: React.FC = () => {
   const [transfers, setTransfers] = useState<Transfer[]>([]);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'info' | 'equipment' | 'tasks'>('info');
-  const [modalVisible, setModalVisible] = useState(false);
-  const [editingEquipment, setEditingEquipment] = useState<Equipment | null>(null);
-  const [newQuantity, setNewQuantity] = useState('');
   
   // Carregar dados do apiário
   useEffect(() => {
@@ -130,7 +117,6 @@ const ApiaryDetailsScreen: React.FC = () => {
         setTimeout(() => {
           setApiary(MOCK_APIARY);
           setEquipment(MOCK_EQUIPMENT);
-          setTransfers(MOCK_TRANSFERS);
           setLoading(false);
         }, 1000);
       } catch (error) {
@@ -142,6 +128,46 @@ const ApiaryDetailsScreen: React.FC = () => {
 
     loadApiary();
   }, [route.params?.apiaryId]);
+
+  // Carregar histórico quando a tela é montada
+  useEffect(() => {
+    // Na implementação real, você buscaria do banco de dados
+    // Aqui estamos apenas simulando com dados estáticos
+    const mockHistory = [
+      {
+        id: '1',
+        productId: 'COL-COL',
+        productName: 'Colmeias',
+        quantity: 5,
+        fromLocation: 'Armazém',
+        toLocation: apiary?.name || 'Apiário',
+        date: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000), // 7 dias atrás
+        notes: 'Instalação inicial',
+      },
+      {
+        id: '2',
+        productId: 'COL-ALC',
+        productName: 'Alças',
+        quantity: 10,
+        fromLocation: 'Armazém',
+        toLocation: apiary?.name || 'Apiário',
+        date: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000), // 5 dias atrás
+        notes: 'Preparação para produção',
+      },
+      {
+        id: '3',
+        productId: 'COL-COL',
+        productName: 'Colmeias',
+        quantity: 2,
+        fromLocation: apiary?.name || 'Apiário',
+        toLocation: 'Armazém',
+        date: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 dias atrás
+        notes: 'Manutenção necessária',
+      },
+    ];
+    
+    setTransferHistory(mockHistory);
+  }, [apiary?.name]);
 
   // Formatação de data
   const formatDate = (date?: Date) => {
@@ -283,35 +309,6 @@ const ApiaryDetailsScreen: React.FC = () => {
       </TouchableOpacity>
     </View>
   );
-
-  // Função para atualizar a quantidade
-  const updateEquipmentQuantity = () => {
-    if (editingEquipment && newQuantity) {
-      const quantity = parseInt(newQuantity);
-      if (!isNaN(quantity) && quantity >= 0) {
-        // Atualiza o equipamento localmente (em produção, isso seria uma chamada à API)
-        const updatedEquipment = equipment.map(item => 
-          item.id === editingEquipment.id 
-            ? { ...item, quantity } 
-            : item
-        );
-        setEquipment(updatedEquipment);
-        
-        // Feedback ao usuário
-        Alert.alert(
-          'Quantidade Atualizada', 
-          `A quantidade de ${editingEquipment.name} foi atualizada para ${quantity} unidades.`
-        );
-        
-        // Fecha o modal e reseta estados
-        setModalVisible(false);
-        setEditingEquipment(null);
-        setNewQuantity('');
-      } else {
-        Alert.alert('Erro', 'Por favor, insira um número válido.');
-      }
-    }
-  };
 
   if (loading) {
     return (
@@ -526,6 +523,9 @@ const ApiaryDetailsScreen: React.FC = () => {
                   <Text style={[styles.notesText, { color: textColor }]}>{apiary.notes}</Text>
                 </View>
               )}
+              
+              {/* Move the history section here for the info tab */}
+              {renderTransferHistory()}
             </View>
           )}
           
@@ -533,7 +533,7 @@ const ApiaryDetailsScreen: React.FC = () => {
           {activeTab === 'equipment' && (
             <View>
               <View style={[styles.equipmentHeader, { backgroundColor: cardBackgroundColor }]}>
-                <Text style={[styles.equipmentHeaderTitle, { color: textColor }]}>Colmeias e Alças</Text>
+                <Text style={[styles.equipmentHeaderTitle, { color: textColor }]}>Equipamentos no Apiário</Text>
                 <TouchableOpacity style={styles.addButton} onPress={handleAddEquipment}>
                   <FontAwesome5 name="plus" size={16} color="#FFFFFF" />
                 </TouchableOpacity>
@@ -547,113 +547,30 @@ const ApiaryDetailsScreen: React.FC = () => {
                   </Text>
                 </View>
               ) : (
-                <>
-                  {equipment.map((item) => (
-                    <View 
-                      key={item.id} 
-                      style={[styles.equipmentCard, { backgroundColor: cardBackgroundColor }]}
-                    >
-                      <View style={styles.equipmentIconContainer}>
-                        {item.id === 'COL-LAN' ? (
-                          <FontAwesome5 name="home" size={20} color="#FFC107" />
-                        ) : item.id === 'COL-REV' ? (
-                          <FontAwesome5 name="home" size={20} color="#FF9800" />
-                        ) : item.id === 'COL-ALC' ? (
-                          <MaterialCommunityIcons name="layers" size={22} color="#8BC34A" />
-                        ) : (
-                          <FontAwesome5 name="box" size={20} color="#78909C" />
-                        )}
-                      </View>
-                      
-                      <View style={styles.equipmentInfo}>
-                        <Text style={[styles.equipmentName, { color: textColor }]}>
-                          {item.name}
-                          {item.id && (
-                            <Text style={[styles.equipmentCode, { color: secondaryTextColor }]}>
-                              {" "}({item.id})
-                            </Text>
-                          )}
+                equipment.map((item) => (
+                  <View 
+                    key={item.id} 
+                    style={[styles.equipmentCard, { backgroundColor: cardBackgroundColor }]}
+                  >
+                    <View style={styles.equipmentInfo}>
+                      <Text style={[styles.equipmentName, { color: textColor }]}>{item.name}</Text>
+                      <Text style={[styles.equipmentQuantity, { color: secondaryTextColor }]}>
+                        {item.quantity} {item.unit}
+                      </Text>
+                      {item.notes && (
+                        <Text style={[styles.equipmentNotes, { color: secondaryTextColor }]}>
+                          {item.notes}
                         </Text>
-                        {item.notes && (
-                          <Text style={[styles.equipmentNotes, { color: secondaryTextColor }]}>
-                            {item.notes}
-                          </Text>
-                        )}
-                      </View>
-                      
-                      <View style={styles.quantityContainer}>
-                        <Text style={[styles.equipmentQuantityValue, { color: textColor }]}>
-                          {item.quantity}
-                        </Text>
-                        
-                        <TouchableOpacity 
-                          style={[styles.editQuantityButton]} 
-                          onPress={() => {
-                            // Abrir modal para edição
-                            setEditingEquipment(item);
-                            setNewQuantity(item.quantity.toString());
-                            setModalVisible(true);
-                          }}
-                        >
-                          <FontAwesome5 name="edit" size={14} color="#FFFFFF" />
-                        </TouchableOpacity>
-                      </View>
+                      )}
                     </View>
-                  ))}
-                  
-                  <View style={styles.historyContainer}>
-                    <Text style={[styles.historyTitle, { color: textColor }]}>
-                      Histórico de Transferências
-                    </Text>
-                    
-                    {transfers && transfers.length > 0 ? (
-                      transfers.map((transfer, index) => (
-                        <View 
-                          key={index} 
-                          style={[styles.transferItem, { backgroundColor: cardBackgroundColor }]}
-                        >
-                          <View style={styles.transferHeader}>
-                            <View style={styles.transferTypeContainer}>
-                              <FontAwesome5 name="home" size={14} color="#FFC107" />
-                              <Text style={[styles.transferType, { color: textColor }]}>
-                                {transfer.productName}
-                              </Text>
-                            </View>
-                            <Text style={[styles.transferDate, { color: secondaryTextColor }]}>
-                              {formatDate(transfer.date)}
-                            </Text>
-                          </View>
-                          
-                          <View style={styles.transferDirection}>
-                            <Text style={[styles.transferLocation, { color: secondaryTextColor }]}>
-                              {transfer.fromLocation}
-                            </Text>
-                            <MaterialCommunityIcons name="arrow-right" size={16} color={secondaryTextColor} />
-                            <Text style={[styles.transferLocation, { color: secondaryTextColor }]}>
-                              {transfer.toLocation}
-                            </Text>
-                          </View>
-                          
-                          <Text style={[styles.transferQuantity, { color: textColor }]}>
-                            {transfer.quantity} unidades
-                          </Text>
-                          
-                          {transfer.notes && (
-                            <Text style={[styles.transferNotes, { color: secondaryTextColor }]}>
-                              Notas: {transfer.notes}
-                            </Text>
-                          )}
-                        </View>
-                      ))
-                    ) : (
-                      <View style={[styles.emptyTransfers, { backgroundColor: cardBackgroundColor }]}>
-                        <Text style={[styles.emptyTransfersText, { color: secondaryTextColor }]}>
-                          Nenhuma transferência registrada
-                        </Text>
-                      </View>
-                    )}
+                    <TouchableOpacity 
+                      style={styles.equipmentActionButton}
+                      onPress={() => Alert.alert('Remover equipamento', 'Esta funcionalidade está em desenvolvimento.')}
+                    >
+                      <FontAwesome5 name="arrow-up" size={14} color="#F44336" />
+                    </TouchableOpacity>
                   </View>
-                </>
+                ))
               )}
             </View>
           )}
@@ -674,6 +591,9 @@ const ApiaryDetailsScreen: React.FC = () => {
                   Nenhuma tarefa programada para este apiário
                 </Text>
               </View>
+              
+              {/* Optional: Also show history in tasks tab */}
+              {renderTransferHistory()}
             </View>
           )}
         </ScrollView>
@@ -1028,58 +948,6 @@ const styles = StyleSheet.create({
   tasksHeaderTitle: {
     fontSize: scale(16),
     fontWeight: 'bold',
-  },
-  modalOverlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  modalContent: {
-    width: '80%',
-    borderRadius: scale(12),
-    padding: scale(20),
-    alignItems: 'center',
-  },
-  modalTitle: {
-    fontSize: scale(18),
-    fontWeight: 'bold',
-    marginBottom: scale(8),
-  },
-  modalSubtitle: {
-    fontSize: scale(16),
-    marginBottom: scale(20),
-  },
-  quantityInput: {
-    width: '100%',
-    borderWidth: 1,
-    borderRadius: scale(8),
-    padding: scale(12),
-    fontSize: scale(16),
-    marginBottom: scale(20),
-  },
-  modalButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '100%',
-  },
-  modalButton: {
-    flex: 1,
-    padding: scale(12),
-    borderRadius: scale(8),
-    alignItems: 'center',
-    marginHorizontal: scale(6),
-  },
-  cancelButton: {
-    backgroundColor: '#F44336',
-  },
-  confirmButton: {
-    backgroundColor: '#4CAF50',
-  },
-  modalButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
-    fontSize: scale(14),
   },
 });
 

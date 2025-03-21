@@ -231,29 +231,7 @@ Contribuições são bem-vindas! Sente-te à vontade para abrir issues ou enviar
 
 ## 📝 Changelog
 
-### Versão 1.3.3 (Atual)
-- Implementada gestão manual de quantidade para os equipamentos nos apiários
-- Substituição dos botões + e - por um botão de edição com entrada direta de valores
-- Padronizada a exibição de equipamentos entre iOS e Android
-- Restringidos os tipos de equipamentos para apiários (apenas Colmeia Langstroth, Colmeia Reversível e Alças)
-- Adicionada visualização de histórico de transferências de equipamentos
-- Corrigida a exibição do código do equipamento junto ao nome
-- Adicionados ícones específicos para cada tipo de colmeia ou alça
-- Reorganização do layout para melhor visualização em telas menores
-- Implementação de modal para entrada manual de quantidades
-- Feedback visual aprimorado durante a edição de quantidade de equipamentos
-
-### Versão 1.3.2
-- Implementada entrada manual de quantidade para equipamentos nos apiários
-- Adicionado suporte para transferência de equipamentos entre apiário e armazém
-- Padronizada a interface entre iOS e Android para garantir consistência visual
-- Adicionada visualização de detalhes de produtos e opção de transferência em Android
-- Restrição de equipamentos para apiários (apenas Colmeia Langstroth, Colmeia Reversível e Alças)
-- Melhoria no sistema de seleção de categorias em dispositivos Android
-- Interface de edição de quantidades simplificada com modal para entrada direta
-- Ajustes visuais para adaptar a todos os tamanhos de tela e densidades de pixel
-
-### Versão 1.3.1
+### Versão 1.3.1 (Atual)
 - Alterado esquema de cores para tons de azul em toda a aplicação
 - Ajustada a posição dos ícones na barra de navegação para melhor usabilidade
 - Corrigido comportamento do botão Home para retornar à tela principal (MainScreen)
